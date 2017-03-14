@@ -1,5 +1,7 @@
 #include "SimplexNoise.hlsl"
 #include "PrimitiveDistanceFunctions.hlsl"
+#include "DistanceOperations.hlsl"
+#include "DomainOperations.hlsl"
 
 //--------------------------------------------------------------------------------------
 // Global variables
@@ -97,3 +99,7 @@ technique11 RenderSceneWithTexture1Light
         SetDepthStencilState( EnableDepth, 0 );
     }
 }
+
+
+//TODO: Create DistanceDeformations.hlsl
+//TODO: Create DomainDeformations.hlsl

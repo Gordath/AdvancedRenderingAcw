@@ -23,6 +23,12 @@
     <None Include="PrimitiveDistanceFunctions.hlsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="DistanceOperations.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="DomainOperations.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

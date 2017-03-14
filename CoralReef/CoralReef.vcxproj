@@ -375,6 +375,9 @@
     <None Include="..\..\DXUT11\Optional\directx.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="DomainOperations.hlsl">
+      <FileType>HLSL</FileType>
+    </None>
     <ClCompile Include="main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -409,6 +412,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PrimitiveDistanceFunctions.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DistanceOperations.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

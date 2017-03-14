@@ -30,7 +30,6 @@ CModelViewerCamera g_Camera; // A model viewing camera
 CD3DSettingsDlg g_D3DSettingsDlg; // Device settings dialog
 CDXUTDialog g_HUD; // manages the 3D   
 CDXUTDialog g_SampleUI; // dialog for sample specific controls
-XMMATRIX g_mCenterMesh;
 bool g_bShowHelp = false; // If true, it renders the UI control text
 
 // Direct3D11 resources
@@ -280,15 +279,6 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
-	XMFLOAT3 vCenter(0.25767413f, -28.503521f, 111.00689f);
-	FLOAT fObjectRadius = 378.15607f;
-
-	g_mCenterMesh = XMMatrixTranslation(-vCenter.x, -vCenter.y, -vCenter.z);
-	XMMATRIX m = XMMatrixRotationY(XM_PI);
-	g_mCenterMesh *= m;
-	m = XMMatrixRotationX(XM_PI / 2.0f);
-	g_mCenterMesh *= m;
-
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
 	// Compile and create the effect.
@@ -368,7 +358,6 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	// Setup the camera's view parameters
 	static const XMVECTORF32 s_vecEye = { 0.0f, 0.0f, -15.0f, 0.0f };
 	g_Camera.SetViewParams(s_vecEye, g_XMZero);
-	g_Camera.SetRadius(fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f);
 
 	return S_OK;
 }
@@ -421,7 +410,7 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	pd3dImmediateContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0, 0);
 
 	// Get the projection & view matrix from the camera class
-	XMMATRIX mWorld = g_mCenterMesh * g_Camera.GetWorldMatrix();
+	XMMATRIX mWorld = g_Camera.GetWorldMatrix();
 	XMMATRIX mProj = g_Camera.GetProjMatrix();
 	XMMATRIX mView = g_Camera.GetViewMatrix();
 
