@@ -6,13 +6,6 @@
 //--------------------------------------------------------------------------------------
 float4 g_MaterialAmbientColor;      // Material's ambient color
 float4 g_MaterialDiffuseColor;      // Material's diffuse color
-int g_nNumLights;
-
-float3 g_LightDir[3];               // Light's direction in world space
-float4 g_LightDiffuse[3];           // Light's diffuse color
-float4 g_LightAmbient;              // Light's ambient color
-
-Texture2D g_MeshTexture;            // Color texture for mesh
 
 float    g_fTime;                   // App's time in seconds
 float4x4 g_mWorld;                  // World matrix for object
@@ -55,10 +48,7 @@ struct VS_OUTPUT
 //--------------------------------------------------------------------------------------
 VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
                          float3 vNormal : NORMAL,
-                         float2 vTexCoord0 : TEXCOORD,
-                         uniform int nNumLights,
-                         uniform bool bTexture,
-                         uniform bool bAnimate )
+                         float2 vTexCoord0 : TEXCOORD)
 {
     VS_OUTPUT output;
 
@@ -83,8 +73,7 @@ struct PS_OUTPUT
 // This shader outputs the pixel's color by modulating the texture's
 //       color with diffuse material color
 //--------------------------------------------------------------------------------------
-PS_OUTPUT RenderScenePS( VS_OUTPUT In,
-                         uniform bool bTexture ) 
+PS_OUTPUT RenderScenePS( VS_OUTPUT In) 
 { 
     PS_OUTPUT Output;
 
@@ -101,9 +90,9 @@ technique11 RenderSceneWithTexture1Light
 {
     pass P0
     {
-        SetVertexShader( CompileShader( vs_5_0, RenderSceneVS( 1, true, true ) ) );
+        SetVertexShader( CompileShader( vs_5_0, RenderSceneVS() ) );
         SetGeometryShader( NULL );
-        SetPixelShader( CompileShader( ps_5_0, RenderScenePS( true ) ) );
+        SetPixelShader( CompileShader( ps_5_0, RenderScenePS() ) );
 
         SetDepthStencilState( EnableDepth, 0 );
     }
