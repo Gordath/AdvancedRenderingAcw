@@ -1,0 +1,9 @@
+*.opendb
+*.tlog
+Media/
+ipch/
+*.db
+*.idb
+*.lastbuildstate
+*.res
+*.unsuccessfulbuild
