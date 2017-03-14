@@ -43,9 +43,9 @@ CDXUTSDKMesh                        g_Mesh11;
 ID3D11InputLayout*                  g_pVertexLayout = nullptr;
 
 ID3DX11Effect*                      g_pEffect = nullptr;
+
 ID3DX11EffectTechnique*             g_pTechRenderSceneWithTexture1Light = nullptr;
-ID3DX11EffectTechnique*             g_pTechRenderSceneWithTexture2Light = nullptr;
-ID3DX11EffectTechnique*             g_pTechRenderSceneWithTexture3Light = nullptr;
+
 ID3DX11EffectShaderResourceVariable*g_ptxDiffuse = nullptr;
 ID3DX11EffectVectorVariable*        g_pLightDir = nullptr;
 ID3DX11EffectVectorVariable*        g_pLightDiffuse = nullptr;
@@ -416,8 +416,6 @@ HRESULT CALLBACK OnD3D11CreateDevice( ID3D11Device* pd3dDevice, const DXGI_SURFA
 
     // Obtain technique objects
     g_pTechRenderSceneWithTexture1Light = g_pEffect->GetTechniqueByName( "RenderSceneWithTexture1Light" );
-    g_pTechRenderSceneWithTexture2Light = g_pEffect->GetTechniqueByName( "RenderSceneWithTexture2Light" );
-    g_pTechRenderSceneWithTexture3Light = g_pEffect->GetTechniqueByName( "RenderSceneWithTexture3Light" );
 
     // Obtain variables
     g_ptxDiffuse = g_pEffect->GetVariableByName( "g_MeshTexture" )->AsShaderResource();
@@ -538,58 +536,6 @@ void CALLBACK OnD3D11FrameRender( ID3D11Device* pd3dDevice, ID3D11DeviceContext*
 
     V( g_pfTime->SetFloat( ( float )fTime ) );
     V( g_pnNumLights->SetInt( g_nNumActiveLights ) );
-
-    // Render the scene with this technique as defined in the .fx file
-    ID3DX11EffectTechnique* pRenderTechnique;
-    switch( g_nNumActiveLights )
-    {
-        case 1:
-            pRenderTechnique = g_pTechRenderSceneWithTexture1Light;
-            break;
-        case 2:
-            pRenderTechnique = g_pTechRenderSceneWithTexture2Light;
-            break;
-        case 3:
-            pRenderTechnique = g_pTechRenderSceneWithTexture3Light;
-            break;
-        default:
-            pRenderTechnique = g_pTechRenderSceneWithTexture1Light;
-            break;
-    }
-
-    //Get the mesh
-    //IA setup
-    pd3dImmediateContext->IASetInputLayout( g_pVertexLayout );
-    UINT Strides[1];
-    UINT Offsets[1];
-    ID3D11Buffer* pVB[1];
-    pVB[0] = g_Mesh11.GetVB11( 0, 0 );
-    Strides[0] = ( UINT )g_Mesh11.GetVertexStride( 0, 0 );
-    Offsets[0] = 0;
-    pd3dImmediateContext->IASetVertexBuffers( 0, 1, pVB, Strides, Offsets );
-    pd3dImmediateContext->IASetIndexBuffer( g_Mesh11.GetIB11( 0 ), g_Mesh11.GetIBFormat11( 0 ), 0 );
-
-    //Render
-    D3DX11_TECHNIQUE_DESC techDesc;
-    V( pRenderTechnique->GetDesc( &techDesc ) );
-
-    for( UINT p = 0; p < techDesc.Passes; ++p )
-    {
-        for( UINT subset = 0; subset < g_Mesh11.GetNumSubsets( 0 ); ++subset )
-        {
-            // Get the subset
-            auto pSubset = g_Mesh11.GetSubset( 0, subset );
-
-            auto  PrimType = CDXUTSDKMesh::GetPrimitiveType11( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
-            pd3dImmediateContext->IASetPrimitiveTopology( PrimType );
-
-            auto pDiffuseRV = g_Mesh11.GetMaterial( pSubset->MaterialID )->pDiffuseRV11;
-            g_ptxDiffuse->SetResource( pDiffuseRV );
-
-            pRenderTechnique->GetPassByIndex( p )->Apply( 0, pd3dImmediateContext );
-            pd3dImmediateContext->DrawIndexed( ( UINT )pSubset->IndexCount, 0, ( UINT )pSubset->VertexStart );
-        }
-    }
 
     DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
     g_HUD.OnRender( fElapsedTime );
