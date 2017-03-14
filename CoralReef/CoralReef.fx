@@ -1,11 +1,5 @@
-//--------------------------------------------------------------------------------------
-// File: BasicHLSL11.fx
-//
-// The effect file for the BasicHLSL sample.  
-// 
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
-
+#include "SimplexNoise.hlsl"
+#include "PrimitiveDistanceFunctions.hlsl"
 
 //--------------------------------------------------------------------------------------
 // Global variables

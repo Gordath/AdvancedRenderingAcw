@@ -14,23 +14,27 @@
     <None Include="..\..\DXUT11\Optional\directx.ico">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="BasicHLSLFX11.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="BasicHLSLFX11.fx">
+    <None Include="CoralReef.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="SimplexNoise.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="PrimitiveDistanceFunctions.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
       <Filter>Resource Files</Filter>
     </CLInclude>
-    <ResourceCompile Include="BasicHLSLFX11.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="CoralReef.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
