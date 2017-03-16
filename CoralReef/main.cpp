@@ -25,30 +25,27 @@ using namespace DirectX;
 //---------------------------------------------------518-----------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
-CDXUTDialogResourceManager g_DialogResourceManager; // manager for shared resources of dialogs
-CModelViewerCamera g_Camera; // A model viewing camera
-CD3DSettingsDlg g_D3DSettingsDlg; // Device settings dialog
-CDXUTDialog g_HUD; // manages the 3D   
-CDXUTDialog g_SampleUI; // dialog for sample specific controls
-bool g_bShowHelp = false; // If true, it renders the UI control text
+CDXUTDialogResourceManager          g_DialogResourceManager; // manager for shared resources of dialogs
+CModelViewerCamera                  g_Camera;               // A model viewing camera
+CD3DSettingsDlg                     g_D3DSettingsDlg;       // Device settings dialog
+CDXUTDialog                         g_HUD;                  // manages the 3D   
+CDXUTDialog                         g_SampleUI;             // dialog for sample specific controls
+XMMATRIX                            g_mCenterMesh;
+bool                                g_bShowHelp = false;    // If true, it renders the UI control text
 
-// Direct3D11 resources
-CDXUTTextHelper* g_pTxtHelper = nullptr;
-ID3D11InputLayout* g_pVertexLayout = nullptr;
+															// Direct3D11 resources
+CDXUTTextHelper*                    g_pTxtHelper = nullptr;
+CDXUTSDKMesh                        g_Mesh11;
+ID3D11InputLayout*                  g_pVertexLayout = nullptr;
 
-ID3DX11Effect* g_pEffect = nullptr;
-
-ID3DX11EffectTechnique* g_pTechRenderSceneWithTexture1Light = nullptr;
-
-ID3DX11EffectShaderResourceVariable* g_ptxDiffuse = nullptr;
-ID3DX11EffectVectorVariable* g_pLightDir = nullptr;
-ID3DX11EffectVectorVariable* g_pLightDiffuse = nullptr;
-ID3DX11EffectMatrixVariable* g_pmWorldViewProjection = nullptr;
-ID3DX11EffectMatrixVariable* g_pmWorld = nullptr;
-ID3DX11EffectScalarVariable* g_pfTime = nullptr;
-ID3DX11EffectVectorVariable* g_pMaterialDiffuseColor = nullptr;
-ID3DX11EffectVectorVariable* g_pMaterialAmbientColor = nullptr;
-ID3DX11EffectScalarVariable* g_pnNumLights = nullptr;
+ID3DX11Effect*                      g_pEffect = nullptr;
+ID3DX11EffectTechnique*             g_pTechRenderSceneWithTexture1Light = nullptr;
+ID3DX11EffectShaderResourceVariable*g_ptxDiffuse = nullptr;
+ID3DX11EffectMatrixVariable*        g_pmWorldViewProjection = nullptr;
+ID3DX11EffectMatrixVariable*        g_pmWorld = nullptr;
+ID3DX11EffectScalarVariable*        g_pfTime = nullptr;
+ID3DX11EffectVectorVariable*        g_pMaterialDiffuseColor = nullptr;
+ID3DX11EffectVectorVariable*        g_pMaterialAmbientColor = nullptr;
 
 
 //--------------------------------------------------------------------------------------
@@ -62,20 +59,20 @@ ID3DX11EffectScalarVariable* g_pnNumLights = nullptr;
 bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings* pDeviceSettings, void* pUserContext);
 void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void* pUserContext);
 LRESULT CALLBACK MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                         void* pUserContext);
+	void* pUserContext);
 void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext);
 void CALLBACK OnGUIEvent(UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext);
 
-bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo* AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo* DeviceInfo,
-                                      DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext);
+bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo,
+	DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext);
 HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc,
-                                     void* pUserContext);
+	void* pUserContext);
 HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-                                         const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext);
+	const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext);
 void CALLBACK OnD3D11ReleasingSwapChain(void* pUserContext);
 void CALLBACK OnD3D11DestroyDevice(void* pUserContext);
 void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime,
-                                 float fElapsedTime, void* pUserContext);
+	float fElapsedTime, void* pUserContext);
 
 void InitApp();
 void RenderText();
@@ -112,7 +109,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	DXUTInit(true, true, nullptr); // Parse the command line, show msgboxes on error, no extra command line params
 	DXUTSetCursorSettings(true, true); // Show the cursor and clip it when in full screen
 	DXUTCreateWindow(L"CoralReef");
-	DXUTCreateDevice(D3D_FEATURE_LEVEL_11_0, true, 800, 600);
+	DXUTCreateDevice(D3D_FEATURE_LEVEL_9_2, true, 800, 600);
 	DXUTMainLoop(); // Enter into the DXUT render loop
 
 	return DXUTGetExitCode();
@@ -129,11 +126,8 @@ void InitApp()
 	g_HUD.Init(&g_DialogResourceManager);
 	g_SampleUI.Init(&g_DialogResourceManager);
 
-	g_HUD.SetCallback(OnGUIEvent);
-	int iY = 10;
+	g_HUD.SetCallback(OnGUIEvent); int iY = 10;
 	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 0, iY, 170, 23);
-
-	g_SampleUI.SetCallback(OnGUIEvent);
 }
 
 
@@ -168,7 +162,8 @@ void RenderText()
 	g_pTxtHelper->DrawTextLine(DXUTGetDeviceStats());
 
 	// Draw help
-	if (g_bShowHelp) {
+	if (g_bShowHelp)
+	{
 		UINT nBackBufferHeight = DXUTGetDXGIBackBufferSurfaceDesc()->Height;
 		g_pTxtHelper->SetInsertionPos(2, nBackBufferHeight - 15 * 6);
 		g_pTxtHelper->SetForegroundColor(Colors::Orange);
@@ -184,7 +179,8 @@ void RenderText()
 		g_pTxtHelper->DrawTextLine(L"Hide help: F1\n"
 			L"Quit: ESC\n");
 	}
-	else {
+	else
+	{
 		g_pTxtHelper->SetForegroundColor(Colors::White);
 		g_pTxtHelper->DrawTextLine(L"Press F1 for help");
 	}
@@ -197,7 +193,7 @@ void RenderText()
 // Handle messages to the application
 //--------------------------------------------------------------------------------------
 LRESULT CALLBACK MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                         void* pUserContext)
+	void* pUserContext)
 {
 	// Pass messages to dialog resource manager calls so GUI state is updated correctly
 	*pbNoFurtherProcessing = g_DialogResourceManager.MsgProc(hWnd, uMsg, wParam, lParam);
@@ -205,7 +201,8 @@ LRESULT CALLBACK MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, boo
 		return 0;
 
 	// Pass messages to settings dialog if its active
-	if (g_D3DSettingsDlg.IsActive()) {
+	if (g_D3DSettingsDlg.IsActive())
+	{
 		g_D3DSettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
 		return 0;
 	}
@@ -230,13 +227,12 @@ LRESULT CALLBACK MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, boo
 //--------------------------------------------------------------------------------------
 void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext)
 {
-	if (bKeyDown) {
-		switch (nChar) {
+	if (bKeyDown)
+	{
+		switch (nChar)
+		{
 		case VK_F1:
-			g_bShowHelp = !g_bShowHelp;
-			break;
-		default:
-			break;
+			g_bShowHelp = !g_bShowHelp; break;
 		}
 	}
 }
@@ -247,21 +243,22 @@ void CALLBACK OnKeyboard(UINT nChar, bool bKeyDown, bool bAltDown, void* pUserCo
 //--------------------------------------------------------------------------------------
 void CALLBACK OnGUIEvent(UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext)
 {
-	switch (nControlID) {
+	switch (nControlID)
+	{
 	case IDC_TOGGLEFULLSCREEN:
-		DXUTToggleFullScreen();
-		break;
+		DXUTToggleFullScreen(); break;
 	default:
 		break;
 	}
+
 }
 
 
 //--------------------------------------------------------------------------------------
 // Reject any D3D11 devices that aren't acceptable by returning false
 //--------------------------------------------------------------------------------------
-bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo* AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo* DeviceInfo,
-                                      DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext)
+bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo *AdapterInfo, UINT Output, const CD3D11EnumDeviceInfo *DeviceInfo,
+	DXGI_FORMAT BackBufferFormat, bool bWindowed, void* pUserContext)
 {
 	return true;
 }
@@ -270,14 +267,24 @@ bool CALLBACK IsD3D11DeviceAcceptable(const CD3D11EnumAdapterInfo* AdapterInfo, 
 // Create any D3D11 resources that aren't dependant on the back buffer
 //--------------------------------------------------------------------------------------
 HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc,
-                                     void* pUserContext)
+	void* pUserContext)
 {
 	HRESULT hr = S_OK;
 
 	auto pd3dImmediateContext = DXUTGetD3D11DeviceContext();
-	V_RETURN( g_DialogResourceManager.OnD3D11CreateDevice( pd3dDevice, pd3dImmediateContext ) );
-	V_RETURN( g_D3DSettingsDlg.OnD3D11CreateDevice( pd3dDevice ) );
+	V_RETURN(g_DialogResourceManager.OnD3D11CreateDevice(pd3dDevice, pd3dImmediateContext));
+	V_RETURN(g_D3DSettingsDlg.OnD3D11CreateDevice(pd3dDevice));
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
+
+
+	XMFLOAT3 vCenter(0.25767413f, -28.503521f, 111.00689f);
+	FLOAT fObjectRadius = 378.15607f;
+
+	g_mCenterMesh = XMMatrixTranslation(-vCenter.x, -vCenter.y, -vCenter.z);
+	XMMATRIX m = XMMatrixRotationY(XM_PI);
+	g_mCenterMesh *= m;
+	m = XMMatrixRotationX(XM_PI / 2.0f);
+	g_mCenterMesh *= m;
 
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
@@ -298,12 +305,13 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 #if D3D_COMPILER_VERSION >= 46
 
 	WCHAR szShaderPath[MAX_PATH];
-	V_RETURN( DXUTFindDXSDKMediaFileCch( szShaderPath, MAX_PATH, L"CoralReef.fx" ) );
+	V_RETURN(DXUTFindDXSDKMediaFileCch(szShaderPath, MAX_PATH, L"CoralReef.fx"));
 
 	ID3DBlob* pErrorBlob = nullptr;
 	hr = D3DX11CompileEffectFromFile(szShaderPath, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, dwShaderFlags, 0, pd3dDevice, &g_pEffect, &pErrorBlob);
 
-	if (pErrorBlob) {
+	if (pErrorBlob)
+	{
 		OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
 		pErrorBlob->Release();
 	}
@@ -313,12 +321,12 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 
 #else
 
-    ID3DBlob* pEffectBuffer = nullptr;
-    V_RETURN( DXUTCompileFromFile( L"CoralReef.fx", nullptr, "none", "fx_5_0", dwShaderFlags, 0, &pEffectBuffer ) );
-    hr = D3DX11CreateEffectFromMemory( pEffectBuffer->GetBufferPointer(), pEffectBuffer->GetBufferSize(), 0, pd3dDevice, &g_pEffect );
-    SAFE_RELEASE( pEffectBuffer );
-    if ( FAILED(hr) )
-        return hr;
+	ID3DBlob* pEffectBuffer = nullptr;
+	V_RETURN(DXUTCompileFromFile(L"CoralReef.fx", nullptr, "none", "fx_5_0", dwShaderFlags, 0, &pEffectBuffer));
+	hr = D3DX11CreateEffectFromMemory(pEffectBuffer->GetBufferPointer(), pEffectBuffer->GetBufferSize(), 0, pd3dDevice, &g_pEffect);
+	SAFE_RELEASE(pEffectBuffer);
+	if (FAILED(hr))
+		return hr;
 
 #endif
 
@@ -327,37 +335,38 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 
 	// Obtain variables
 	g_ptxDiffuse = g_pEffect->GetVariableByName("g_MeshTexture")->AsShaderResource();
-	g_pLightDir = g_pEffect->GetVariableByName("g_LightDir")->AsVector();
-	g_pLightDiffuse = g_pEffect->GetVariableByName("g_LightDiffuse")->AsVector();
 	g_pmWorldViewProjection = g_pEffect->GetVariableByName("g_mWorldViewProjection")->AsMatrix();
 	g_pmWorld = g_pEffect->GetVariableByName("g_mWorld")->AsMatrix();
 	g_pfTime = g_pEffect->GetVariableByName("g_fTime")->AsScalar();
 	g_pMaterialAmbientColor = g_pEffect->GetVariableByName("g_MaterialAmbientColor")->AsVector();
 	g_pMaterialDiffuseColor = g_pEffect->GetVariableByName("g_MaterialDiffuseColor")->AsVector();
-	g_pnNumLights = g_pEffect->GetVariableByName("g_nNumLights")->AsScalar();
 
 	// Create our vertex input layout
 	const D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",    0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD",  0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	D3DX11_PASS_DESC PassDesc;
-	V_RETURN( g_pTechRenderSceneWithTexture1Light->GetPassByIndex( 0 )->GetDesc( &PassDesc ) );
-	V_RETURN( pd3dDevice->CreateInputLayout( layout, 3, PassDesc.pIAInputSignature,
-		PassDesc.IAInputSignatureSize, &g_pVertexLayout ) );
+	V_RETURN(g_pTechRenderSceneWithTexture1Light->GetPassByIndex(0)->GetDesc(&PassDesc));
+	V_RETURN(pd3dDevice->CreateInputLayout(layout, 3, PassDesc.pIAInputSignature,
+		PassDesc.IAInputSignatureSize, &g_pVertexLayout));
+
+	// Load the mesh
+	V_RETURN(g_Mesh11.Create(pd3dDevice, L"tiny\\tiny.sdkmesh"));
 
 	// Set effect variables as needed
 	XMFLOAT4 colorMtrlDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
 	XMFLOAT4 colorMtrlAmbient(0.35f, 0.35f, 0.35f, 0);
-	V_RETURN( g_pMaterialAmbientColor->SetFloatVector( ( float* )&colorMtrlAmbient ) );
-	V_RETURN( g_pMaterialDiffuseColor->SetFloatVector( ( float* )&colorMtrlDiffuse ) );
+	V_RETURN(g_pMaterialAmbientColor->SetFloatVector((float*)&colorMtrlAmbient));
+	V_RETURN(g_pMaterialDiffuseColor->SetFloatVector((float*)&colorMtrlDiffuse));
 
 	// Setup the camera's view parameters
 	static const XMVECTORF32 s_vecEye = { 0.0f, 0.0f, -15.0f, 0.0f };
 	g_Camera.SetViewParams(s_vecEye, g_XMZero);
+	g_Camera.SetRadius(fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f);
 
 	return S_OK;
 }
@@ -367,12 +376,12 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 // Create any D3D11 resources that depend on the back buffer
 //--------------------------------------------------------------------------------------
 HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChain* pSwapChain,
-                                         const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext)
+	const DXGI_SURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext)
 {
 	HRESULT hr;
 
-	V_RETURN( g_DialogResourceManager.OnD3D11ResizedSwapChain( pd3dDevice, pBackBufferSurfaceDesc ) );
-	V_RETURN( g_D3DSettingsDlg.OnD3D11ResizedSwapChain( pd3dDevice, pBackBufferSurfaceDesc ) );
+	V_RETURN(g_DialogResourceManager.OnD3D11ResizedSwapChain(pd3dDevice, pBackBufferSurfaceDesc));
+	V_RETURN(g_D3DSettingsDlg.OnD3D11ResizedSwapChain(pd3dDevice, pBackBufferSurfaceDesc));
 
 	// Setup the camera's projection parameters
 	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
@@ -393,12 +402,13 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChai
 // Render the scene using the D3D11 device
 //--------------------------------------------------------------------------------------
 void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* pd3dImmediateContext, double fTime,
-                                 float fElapsedTime, void* pUserContext)
+	float fElapsedTime, void* pUserContext)
 {
 	HRESULT hr;
 
 	// If the settings dialog is being shown, then render it instead of rendering the app's scene
-	if (g_D3DSettingsDlg.IsActive()) {
+	if (g_D3DSettingsDlg.IsActive())
+	{
 		g_D3DSettingsDlg.OnRender(fElapsedTime);
 		return;
 	}
@@ -410,7 +420,7 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	pd3dImmediateContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0, 0);
 
 	// Get the projection & view matrix from the camera class
-	XMMATRIX mWorld = g_Camera.GetWorldMatrix();
+	XMMATRIX mWorld = g_mCenterMesh * g_Camera.GetWorldMatrix();
 	XMMATRIX mProj = g_Camera.GetProjMatrix();
 	XMMATRIX mView = g_Camera.GetViewMatrix();
 
@@ -418,14 +428,48 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 
 	XMFLOAT4X4 m;
 	XMStoreFloat4x4(&m, mWorldViewProjection);
-	V( g_pmWorldViewProjection->SetMatrix( ( float* )&m ) );
+	V(g_pmWorldViewProjection->SetMatrix((float*)&m));
 
 	XMStoreFloat4x4(&m, mWorld);
-	V( g_pmWorld->SetMatrix( ( float* )&m) );
+	V(g_pmWorld->SetMatrix((float*)&m));
 
-	V( g_pfTime->SetFloat( ( float )fTime ) );
+	V(g_pfTime->SetFloat((float)fTime));
 
-	DXUT_BeginPerfEvent( DXUT_PERFEVENTCOLOR, L"HUD / Stats" );
+	// Render the scene with this technique as defined in the .fx file
+	ID3DX11EffectTechnique* pRenderTechnique = g_pTechRenderSceneWithTexture1Light;
+
+	//Get the mesh
+	//IA setup
+	pd3dImmediateContext->IASetInputLayout(g_pVertexLayout);
+	UINT Strides[1];
+	UINT Offsets[1];
+	ID3D11Buffer* pVB[1];
+	pVB[0] = g_Mesh11.GetVB11(0, 0);
+	Strides[0] = (UINT)g_Mesh11.GetVertexStride(0, 0);
+	Offsets[0] = 0;
+	pd3dImmediateContext->IASetVertexBuffers(0, 1, pVB, Strides, Offsets);
+	pd3dImmediateContext->IASetIndexBuffer(g_Mesh11.GetIB11(0), g_Mesh11.GetIBFormat11(0), 0);
+
+	//Render
+	D3DX11_TECHNIQUE_DESC techDesc;
+	V(pRenderTechnique->GetDesc(&techDesc));
+
+	for (UINT p = 0; p < techDesc.Passes; ++p)
+	{
+		for (UINT subset = 0; subset < g_Mesh11.GetNumSubsets(0); ++subset)
+		{
+			// Get the subset
+			auto pSubset = g_Mesh11.GetSubset(0, subset);
+
+			auto  PrimType = CDXUTSDKMesh::GetPrimitiveType11((SDKMESH_PRIMITIVE_TYPE)pSubset->PrimitiveType);
+			pd3dImmediateContext->IASetPrimitiveTopology(PrimType);
+
+			pRenderTechnique->GetPassByIndex(p)->Apply(0, pd3dImmediateContext);
+			pd3dImmediateContext->DrawIndexed((UINT)pSubset->IndexCount, 0, (UINT)pSubset->VertexStart);
+		}
+	}
+
+	DXUT_BeginPerfEvent(DXUT_PERFEVENTCOLOR, L"HUD / Stats");
 	g_HUD.OnRender(fElapsedTime);
 	g_SampleUI.OnRender(fElapsedTime);
 	RenderText();
@@ -450,9 +494,11 @@ void CALLBACK OnD3D11DestroyDevice(void* pUserContext)
 	g_DialogResourceManager.OnD3D11DestroyDevice();
 	g_D3DSettingsDlg.OnD3D11DestroyDevice();
 	DXUTGetGlobalResourceCache().OnDestroyDevice();
-	SAFE_DELETE( g_pTxtHelper );
+	SAFE_DELETE(g_pTxtHelper);
 
-	SAFE_RELEASE( g_pEffect );
+	SAFE_RELEASE(g_pEffect);
 
-	SAFE_RELEASE( g_pVertexLayout );
+	SAFE_RELEASE(g_pVertexLayout);
+	g_Mesh11.Destroy();
+
 }
