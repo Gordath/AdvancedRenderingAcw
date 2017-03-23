@@ -44,8 +44,9 @@ PS_OUTPUT RenderScenePS2(VS_QUAD In)
 	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
 	float distEye2Canvas = 2.0;
 	float3 PixelPos = float3(xy, distEye2Canvas);
-//___________________________________ //2. for each pixel location (x,y), fire a ray
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//___________________________________
+//2. for each pixel location (x,y), fire a ray
+//___________________________________
 	Ray eyeray;
 	eyeray.o = E.xyz + (float3)3.0; //eye position specified in world space
 	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space

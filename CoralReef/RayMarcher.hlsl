@@ -39,7 +39,8 @@ cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
 
 float SceneMap(float3 Position)
 {
-	return SignedPlane(float3(Position.x, Position.y + noise(Position.xz) * 0.1, Position.z) + float3(0.0, 1.5, 0.0), float4(0.0, 1.0, 0.0, 0.0));
+	return OperationUnion(SignedPlane(float3(Position.x , Position.y + noise(Position.xz) * 0.1, Position.z) + float3(0.0, 1.5, 0.0), float4(0.0, 1.0, 0.0, 0.0)),
+							OperationIntersection(Function(Position + simplexNoise(float3(Position.yz, g_fTime)), 1.0), SignedSphere(Position + float3(0.0, -4.0, 0.0), 5.0)));
 }
 
 const float3 Zero = float3(0.0, 0.0, 0.0);
