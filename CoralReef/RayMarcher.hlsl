@@ -1,15 +1,19 @@
 #ifndef RAY_MARCHER_HLSL_
 #define RAY_MARCHER_HLSL_
 
-#define MIN_XYZ -17.0
-#define MAX_XYZ 17.0
+#include "SimplexNoise.hlsl"
+#include "PrimitiveDistanceFunctions.hlsl"
+#include "DistanceOperations.hlsl"
+#include "DomainOperations.hlsl"
+
+#define MIN_XYZ -50.0
+#define MAX_XYZ 50.0
 const float3 BoxMinimum = (float3) MIN_XYZ;
 const float3 BoxMaximum = (float3) MAX_XYZ;
 
 #define INTERVALS 200
 #define PI 3.14159265359	
 
-float levelVal = 0.8;
 
 bool IntersectBox(in Ray ray, in float3 minimum, in float3 maximum, out float timeIn, out float timeOut)
 {
@@ -22,7 +26,7 @@ bool IntersectBox(in Ray ray, in float3 minimum, in float3 maximum, out float ti
 	return timeOut > timeIn;
 }
 
-float Function(float3 Position)
+float Function(float3 Position, float levelVal)
 {
 	float X = Position.x;
 	float Y = Position.y;
@@ -33,6 +37,10 @@ cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
 	return Fun - levelVal;
 }
 
+float SceneMap(float3 Position)
+{
+	return SignedPlane(float3(Position.x, Position.y + noise(Position.xz) * 0.1, Position.z) + float3(0.0, 1.5, 0.0), float4(0.0, 1.0, 0.0, 0.0));
+}
 
 const float3 Zero = float3(0.0, 0.0, 0.0);
 const float3 Unit = float3(1.0, 1.0, 1.0);
@@ -44,9 +52,9 @@ const float3 AxisZ = float3(0.0, 0.0, 1.0);
 
 float3 CalcNormal(float3 Position)
 {
-	float A = Function(Position + AxisX * STEP) - Function(Position - AxisX * STEP);
-	float B = Function(Position + AxisY * STEP) - Function(Position - AxisY * STEP);
-	float C = Function(Position + AxisZ * STEP) - Function(Position - AxisZ * STEP);
+	float A = SceneMap(Position + AxisX * STEP) - SceneMap(Position - AxisX * STEP);
+	float B = SceneMap(Position + AxisY * STEP) - SceneMap(Position - AxisY * STEP);
+	float C = SceneMap(Position + AxisZ * STEP) - SceneMap(Position - AxisZ * STEP);
 	return normalize(float3(A, B, C));
 }
 
@@ -55,12 +63,12 @@ bool RayMarchingInsideCube(in Ray ray, in float start, in float final, out float
 	float step = (final - start) / float(INTERVALS);
 	float time = start;
 	float3 Position = ray.o + time * ray.d;
-	float right, left = Function(Position);
+	float right, left = SceneMap(Position);
 	for (int i = 0; i < INTERVALS; ++i)
 	{
 		time += step;
 		Position += step * ray.d;
-		right = Function(Position);
+		right = SceneMap(Position);
 		if (left * right < 0.0)
 		{
 			val = time + right * step / (left - right);
@@ -83,7 +91,7 @@ float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor,
 float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity)
 {
 	float3 lightDir = normalize(LightPos - hitPos);
-	float4 diff = float4(1.0, 0.0, 0.0, 1.0) * (1.0 - abs(simplexNoise(float3(hitPos.xy, g_fTime * 0.2))));
+	float4 diff = float4(0.8666666666666667, 0.5215686274509804, 0.3607843137254902, 1.0) * (1.0 - abs(noise(hitPos.xz)));
 	float4 spec = float4(1.0, 1.0, 1.0, 1.0);
 	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, 60.0, diff, spec);
 }

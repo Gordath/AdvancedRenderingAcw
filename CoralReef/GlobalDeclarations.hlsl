@@ -15,8 +15,10 @@ float4 E = float4(0, 0, 50, 1); //eye position
 float nearPlane = 1.0;
 float farPlane = 1000.0;
 float4 LightColor = float4(1, 1, 1, 1);
-float3 LightPos = float3(0, 0, 100);
+float3 LightPos = float3(0, 100, 100);
 float4 backgroundColor = float4(0.1, 0.2, 0.3, 1);
+
+#define PI 3.14159265359	
 
 struct Ray
 {

@@ -1,7 +1,7 @@
 #ifndef SIMPLEX_NOISE_HLSL_
 #define SIMPLEX_NOISE_HLSL_
 
-int simplexSeed;
+int simplexSeed = 10;
 
 int hash(int a)
 {

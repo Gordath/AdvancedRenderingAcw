@@ -1,8 +1,4 @@
 #include "GlobalDeclarations.hlsl"
-#include "SimplexNoise.hlsl"
-#include "PrimitiveDistanceFunctions.hlsl"
-#include "DistanceOperations.hlsl"
-#include "DomainOperations.hlsl"
 #include "RayMarcher.hlsl"
 
 
@@ -42,6 +38,23 @@ PS_OUTPUT RenderScenePS(VS_QUAD In)
     return Output;
 }
 
+PS_OUTPUT RenderScenePS2(VS_QUAD In)
+{
+	float WinWidth = 800, WinHeight = 600;
+	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
+	float distEye2Canvas = 2.0;
+	float3 PixelPos = float3(xy, distEye2Canvas);
+//___________________________________ //2. for each pixel location (x,y), fire a ray
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Ray eyeray;
+	eyeray.o = E.xyz + (float3)3.0; //eye position specified in world space
+	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
+
+	PS_OUTPUT Output;
+	Output.RGBColor = RayMarching(eyeray);
+
+	return Output;
+}
 
 //--------------------------------------------------------------------------------------
 // Renders scene to render target using D3D11 Techniques
