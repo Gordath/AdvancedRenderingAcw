@@ -1,7 +1,7 @@
 #ifndef SIMPLEX_NOISE_HLSL_
 #define SIMPLEX_NOISE_HLSL_
 
-int simplexSeed = 10;
+int simplexSeed = 2;
 
 int hash(int a)
 {
@@ -503,6 +503,45 @@ float simplexNoise(float3 input, out float3 derivative)
 	derivative *= 28.0f;
 
 	return noise;
+}
+
+float fbm(float input, int octaves, float scale)
+{
+	float factor = 0.0;
+
+	for (int i = 0; i < octaves; i++)
+	{
+		factor += noise(input * scale) / scale;
+		scale *= 2.0;
+	}
+
+	return factor;
+}
+
+float fbm2(float2 input, int octaves, float scale)
+{
+	float factor = 0.0;
+
+	for (int i = 0; i < octaves; i++)
+	{
+		factor += noise(input * scale) / scale;
+		scale *= 2.0;
+	}
+
+	return factor;
+}
+
+float fbm3(float3 input, int octaves, float scale)
+{
+	float factor = 0.0;
+
+	for (int i = 0; i < octaves; i++)
+	{
+		factor += simplexNoise(input * scale) / scale;
+		scale *= 2.0;
+	}
+
+	return factor;
 }
 
 #endif //SIMPLEX_NOISE_HLSL_
