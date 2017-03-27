@@ -42,7 +42,7 @@ PS_OUTPUT RenderScenePS2(VS_QUAD In)
 {
 	float WinWidth = 800, WinHeight = 600;
 	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 2.0;
+	float distEye2Canvas = 0.1;
 	float3 PixelPos = float3(xy, distEye2Canvas);
 //___________________________________
 //2. for each pixel location (x,y), fire a ray

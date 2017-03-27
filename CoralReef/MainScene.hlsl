@@ -19,9 +19,48 @@ cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
 	return Fun - levelVal;
 }
 
+#define TAU 6.28318530718
+#define MAX_ITER 5
+
+float causticX(float x, float power, float gtime)
+{
+	float p = (x * TAU) % TAU - 250.0;
+	float time = gtime * .5 + 23.0;
+
+	float i = p;;
+	float c = 1.0;
+	float inten = 0.005;
+
+	for (int n = 0; n < MAX_ITER / 2; n++)
+	{
+		float t = time * (1.0 - (3.5 / float(n + 1)));
+		i = p + cos(t - i) + sin(t + i);
+		c += 1.0 / length(p / (sin(i + t) / inten));
+	}
+	c /= float(MAX_ITER);
+	c = 1.17 - pow(c, power);
+    
+	return c;
+}
+
+float GodRays(float2 uv)
+{
+	float light = 0.0;
+
+	light += pow(causticX((uv.x + 0.08 * uv.y) / 1.7 + 0.5, 1.8, g_fTime * 0.65), 10.0) * 0.05;
+	light -= pow((1.0 - uv.y) * 0.3, 2.0) * 0.2;
+	light += pow(causticX(sin(uv.x), 0.3, g_fTime * 0.7), 9.0) * 0.4;
+	light += pow(causticX(cos(uv.x * 2.3), 0.3, g_fTime * 1.3), 4.0) * 0.1;
+        
+	light -= pow((1.0 - uv.y) * 0.3, 3.0);
+	light = clamp(light, 0.0, 1.0);
+    
+	return light;
+}
+
 float SeaFloor(float3 p)
 {
-	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 3, 0.1) * 0.2, p.z) + float3(0.0, 1.5, 0.0),
+	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 3, 0.2) * 0.17, p.z) + float3(0.0, 1.5, 0.0),
 						float4(0.0, 1.0, 0.0, 0.0));
 }
 
