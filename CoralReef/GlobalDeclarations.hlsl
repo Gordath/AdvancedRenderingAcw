@@ -11,7 +11,7 @@ float g_fTime; // App's time in seconds
 float4x4 g_mWorld; // World matrix for object
 float4x4 g_mWorldViewProjection; // World * View * Projection matrix
 
-float4 E = float4(0, 0, 50, 1); //eye position
+float4 E = float4(0, -0.4, 50, 1); //eye position
 float nearPlane = 1.0;
 float farPlane = 1000.0;
 float4 LightColor = float4(1, 1, 1, 1);

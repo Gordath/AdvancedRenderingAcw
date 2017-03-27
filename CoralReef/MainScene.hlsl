@@ -22,12 +22,37 @@ cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
 #define TAU 6.28318530718
 #define MAX_ITER 5
 
+float3 caustic(float2 uv)
+{
+	float2 p = (uv * TAU) % TAU - 250.0;
+	float time = g_fTime * 0.5 + 23.0;
+
+	float2 i = float2(p);
+	float c = 1.0;
+	float inten = .005;
+
+	for (int n = 0; n < MAX_ITER; n++)
+	{
+		float t = time * (1.0 - (3.5 / float(n + 1)));
+		i = p + float2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
+		c += 1.0 / length(float2(p.x / (sin(i.x + t) / inten), p.y / (cos(i.y + t) / inten)));
+	}
+    
+	c /= (float)MAX_ITER;
+	c = 1.17 - pow(c, 1.4);
+	float3 color = (float3)pow(abs(c), 8.0);
+	color = clamp(color + float3(0.0, 0.35, 0.5), 0.0, 1.0);
+	color = lerp(color, float3(1.0, 1.0, 1.0), 0.3);
+    
+	return color;
+}
+
 float causticX(float x, float power, float gtime)
 {
 	float p = (x * TAU) % TAU - 250.0;
 	float time = gtime * .5 + 23.0;
 
-	float i = p;;
+	float i = p;
 	float c = 1.0;
 	float inten = 0.005;
 
@@ -66,7 +91,7 @@ float SeaFloor(float3 p)
 
 float Sea(float3 p)
 {
-	return SignedPlane(float3(p.x, p.y + fbm3(float3(p.xz, g_fTime), 3, 0.5) * 0.1, p.z) + float3(0.0, -5.5, 0.0),
+	return SignedPlane(float3(p.x, p.y + fbm3(float3(p.xz, g_fTime), 3, 0.5) * 0.1, p.z) + float3(0.0, -3.0, 0.0),
 						float4(0.0, -1.0, 0.0, 0.0));
 }
 

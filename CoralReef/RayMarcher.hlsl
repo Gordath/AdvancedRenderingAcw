@@ -81,14 +81,29 @@ float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor,
 float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity)
 {
 	float3 lightDir = normalize(LightPos - hitPos);
-	float4 diff = float4(0.8666666666666667, 0.5215686274509804, 0.3607843137254902, 1.0) * (1.0 - abs(fbm2(hitPos.xz, 4, 3)));
+
+	float4 diff;
+	float phong;
 	float4 spec = float4(1.0, 1.0, 1.0, 1.0);
+
+	if (hitPos.y > 2.8)
+	{
+		diff = float4(0.0, 0.08, 0.5, 1.0) * (1.0 - abs(fbm2(hitPos.xz, 4, 1)));
+		phong = Phong(normal, lightDir, viewDir, 30.0, diff, spec);
+	}
+	else
+	{
+		diff = float4(0.8666666666666667, 0.5215686274509804, 0.3607843137254902, 1.0) * (1.0 - abs(fbm2(hitPos.xz, 4, 3)));
+		phong = Phong(normal, lightDir, viewDir, 128.0, diff, spec);
+	}
+	
+	
 	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, 128.0, diff, spec);
 }
 
 float4 RayMarching(Ray ray)
 {
-	float4 result = float4(0.0, 0.412, 0.58, 0.0);
+	float4 result = (float4) 0.0; //float4(0.0, 0.412, 0.58, 0.0);
 	float start, final;
 	float t;
 	if (IntersectBox(ray, BoxMinimum, BoxMaximum, start, final))
@@ -101,6 +116,7 @@ float4 RayMarching(Ray ray)
 			result = Shade(Position, normal, ray.d, 1.0);
 		}
 	}
+
 	return result;
 }
 

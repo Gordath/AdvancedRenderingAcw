@@ -35,26 +35,20 @@ PS_OUTPUT RenderScenePS(VS_QUAD In)
     PS_OUTPUT Output;
 	Output.RGBColor = RayMarching(eyeray);
 
+	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
+	float3 skyColor = float3(0.3, 1.0, 1.0);
+	float3 horizonColor = float3(0.0, 0.05, 0.2);
+
+	float sky = clamp(0.8 * (1.0 - 0.8 * eyeray.d.y), 0.0, 1.0);
+	//Output.RGBColor.rgb = sky * skyColor;
+	Output.RGBColor.rgb += ((0.3 * caustic(float2(p.x, -p.y * 1.0))) + (0.3 * caustic(float2(p.x, -p.y * 2.7)))) * pow(p.y, 4.0);
+
+    // horizon
+	Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
+
+	Output.RGBColor.rgb += float3(0.7, 1.0, 1.0) * GodRays(p) * lerp(skyColor.x, 1.0, p.y * p.y);
+
     return Output;
-}
-
-PS_OUTPUT RenderScenePS2(VS_QUAD In)
-{
-	float WinWidth = 800, WinHeight = 600;
-	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 0.1;
-	float3 PixelPos = float3(xy, distEye2Canvas);
-//___________________________________
-//2. for each pixel location (x,y), fire a ray
-//___________________________________
-	Ray eyeray;
-	eyeray.o = E.xyz + (float3)3.0; //eye position specified in world space
-	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
-
-	PS_OUTPUT Output;
-	Output.RGBColor = RayMarching(eyeray);
-
-	return Output;
 }
 
 //--------------------------------------------------------------------------------------
