@@ -22,7 +22,6 @@ VS_QUAD RenderSceneVS(float4 vPos : POSITION)
 //--------------------------------------------------------------------------------------
 PS_OUTPUT RenderScenePS(VS_QUAD In)
 { 
-	float WinWidth = 800, WinHeight = 600;
 	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
 	float distEye2Canvas = 2.0;
 	float3 PixelPos = float3(xy, distEye2Canvas);

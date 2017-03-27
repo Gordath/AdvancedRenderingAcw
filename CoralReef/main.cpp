@@ -44,6 +44,8 @@ ID3DX11EffectShaderResourceVariable*g_ptxDiffuse = nullptr;
 ID3DX11EffectMatrixVariable*        g_pmWorldViewProjection = nullptr;
 ID3DX11EffectMatrixVariable*        g_pmWorld = nullptr;
 ID3DX11EffectScalarVariable*        g_pfTime = nullptr;
+ID3DX11EffectScalarVariable*		WinWidth = nullptr;
+ID3DX11EffectScalarVariable*		WinHeight = nullptr;
 ID3DX11EffectVectorVariable*        g_pMaterialDiffuseColor = nullptr;
 ID3DX11EffectVectorVariable*        g_pMaterialAmbientColor = nullptr;
 
@@ -340,6 +342,8 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	g_pfTime = g_pEffect->GetVariableByName("g_fTime")->AsScalar();
 	g_pMaterialAmbientColor = g_pEffect->GetVariableByName("g_MaterialAmbientColor")->AsVector();
 	g_pMaterialDiffuseColor = g_pEffect->GetVariableByName("g_MaterialDiffuseColor")->AsVector();
+	WinWidth = g_pEffect->GetVariableByName("WinWidth")->AsScalar();
+	WinHeight = g_pEffect->GetVariableByName("WinHeight")->AsScalar();
 
 	// Create our vertex input layout
 	const D3D11_INPUT_ELEMENT_DESC layout[] =
@@ -393,6 +397,9 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChai
 	g_HUD.SetSize(170, 170);
 	g_SampleUI.SetLocation(pBackBufferSurfaceDesc->Width - 170, pBackBufferSurfaceDesc->Height - 300);
 	g_SampleUI.SetSize(170, 300);
+
+	V(WinWidth->SetFloat(static_cast<float>(pBackBufferSurfaceDesc->Width)));
+	V(WinHeight->SetFloat(static_cast<float>(pBackBufferSurfaceDesc->Height)));
 
 	return S_OK;
 }

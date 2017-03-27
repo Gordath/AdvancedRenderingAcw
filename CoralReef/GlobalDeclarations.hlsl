@@ -17,6 +17,9 @@ float farPlane = 1000.0;
 float4 LightColor = float4(1, 1, 1, 1);
 float3 LightPos = float3(0, 1, 50);
 
+float WinWidth;
+float WinHeight;
+
 #define PI 3.14159265359	
 
 struct Ray
