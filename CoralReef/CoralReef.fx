@@ -20,10 +20,10 @@ VS_QUAD RenderSceneVS(float4 vPos : POSITION)
 // This shader outputs the pixel's color by modulating the texture's
 //       color with diffuse material color
 //--------------------------------------------------------------------------------------
-PS_OUTPUT RenderScenePS(VS_QUAD In)
+PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 { 
 	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 2.0;
+	float distEye2Canvas = 0.0;
 	float3 PixelPos = float3(xy, distEye2Canvas);
 //___________________________________ //2. for each pixel location (x,y), fire a ray
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -31,23 +31,41 @@ PS_OUTPUT RenderScenePS(VS_QUAD In)
 	eyeray.o = E.xyz; //eye position specified in world space
 	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
 
-    PS_OUTPUT Output;
-	Output.RGBColor = RayMarching(eyeray);
+	PS_OUTPUTWithDepth Output;
+	Output.RGBColor = RayMarching(eyeray, Output.depth);
 
 	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
-	float3 skyColor = float3(0.3, 1.0, 1.0);
+
 	float3 horizonColor = float3(0.0, 0.05, 0.2);
 
-	float sky = clamp(0.8 * (1.0 - 0.8 * eyeray.d.y), 0.0, 1.0);
-	//Output.RGBColor.rgb = sky * skyColor;
-	Output.RGBColor.rgb += ((0.3 * caustic(float2(p.x, -p.y * 1.0))) + (0.3 * caustic(float2(p.x, -p.y * 2.7)))) * pow(p.y, 4.0);
-
-    // horizon
+    // horizon fog
 	Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
 
+    return Output;
+}
+
+PS_OUTPUT PSCausticsGodrays(VS_QUAD In)
+{
+	PS_OUTPUT Output;
+	Output.RGBColor = float4(0.0, 0.0, 0.0, 1.0);
+
+	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
+	float distEye2Canvas = 0.0;
+	float3 PixelPos = float3(xy, distEye2Canvas);
+//___________________________________ //2. for each pixel location (x,y), fire a ray
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Ray eyeray;
+	eyeray.o = E.xyz; //eye position specified in world space
+	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
+
+	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
+
+	float3 skyColor = float3(0.3, 1.0, 1.0);
+
+	Output.RGBColor.rgb += ((0.3 * caustic(float2(p.x, -p.y * 1.0))) + (0.3 * caustic(float2(p.x, -p.y * 2.7)))) * pow(p.y, 4.0);
 	Output.RGBColor.rgb += float3(0.7, 1.0, 1.0) * GodRays(p) * lerp(skyColor.x, 1.0, p.y * p.y);
 
-    return Output;
+	return Output;
 }
 
 //--------------------------------------------------------------------------------------
@@ -55,13 +73,21 @@ PS_OUTPUT RenderScenePS(VS_QUAD In)
 //--------------------------------------------------------------------------------------
 technique11 RenderSceneWithTexture1Light
 {
-    pass P0
-    {
-        SetVertexShader( CompileShader( vs_5_0, RenderSceneVS() ) );
-        SetPixelShader( CompileShader( ps_5_0, RenderScenePS() ) );
-    }
+	pass P0
+	{
+		SetVertexShader(CompileShader(vs_5_0, RenderSceneVS()));
+		SetPixelShader(CompileShader(ps_5_0, PSSeaFloorSeaSurfaceFog()));
+
+		SetDepthStencilState(EnableDepth, 1);
+	}
+
+	pass P1
+	{
+		SetVertexShader(CompileShader(vs_5_0, RenderSceneVS()));
+		SetPixelShader(CompileShader(ps_5_0, PSCausticsGodrays()));
+
+		SetDepthStencilState(DisableDepth, 1);
+
+		SetBlendState(AdditiveBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+	}
 }
-
-
-//TODO: Create DistanceDeformations.hlsl
-//TODO: Create DomainDeformations.hlsl

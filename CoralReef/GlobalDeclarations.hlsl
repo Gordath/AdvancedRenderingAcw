@@ -11,11 +11,11 @@ float g_fTime; // App's time in seconds
 float4x4 g_mWorld; // World matrix for object
 float4x4 g_mWorldViewProjection; // World * View * Projection matrix
 
-float4 E = float4(0, -0.4, 50, 1); //eye position
+float4 E = float4(0, -0.4, -50, 1); //eye position
 float nearPlane = 1.0;
 float farPlane = 1000.0;
 float4 LightColor = float4(1, 1, 1, 1);
-float3 LightPos = float3(0, 1, 50);
+float3 LightPos = float3(0, 1, -50);
 
 float WinWidth;
 float WinHeight;
@@ -42,7 +42,41 @@ struct VS_QUAD
 //--------------------------------------------------------------------------------------
 struct PS_OUTPUT
 {
+	float4 RGBColor : SV_Target;
+};
+
+struct PS_OUTPUTWithDepth
+{
 	float4 RGBColor : SV_Target; // Pixel color
+	float depth : SV_Depth;
+};
+
+DepthStencilState EnableDepth
+{
+	DepthEnable = TRUE;
+	DepthWriteMask = ALL;
+	DepthFunc = LESS_EQUAL;
+};
+
+DepthStencilState DisableDepth
+{
+	DepthEnable = FALSE;
+	DepthWriteMask = ZERO;
+	DepthFunc = LESS_EQUAL;
+};
+
+BlendState NoBlend
+{
+	AlphaToCoverageEnable = FALSE;
+	BlendEnable[0] = FALSE;
+};
+
+BlendState AdditiveBlend
+{
+	BlendEnable[0] = TRUE;
+	SrcBlend = ONE;
+	DestBlend = ONE;
+	BlendOp = ADD;
 };
 
 #endif //GLOBAL_DECLARATIONS_HLSL_

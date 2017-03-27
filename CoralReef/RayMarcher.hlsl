@@ -3,8 +3,8 @@
 
 #include "MainScene.hlsl"
 
-#define MIN_XYZ -50.0
-#define MAX_XYZ 50.0
+#define MIN_XYZ -100.0
+#define MAX_XYZ 100.0
 const float3 BoxMinimum = (float3) MIN_XYZ;
 const float3 BoxMaximum = (float3) MAX_XYZ;
 
@@ -101,11 +101,14 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity)
 	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, 128.0, diff, spec);
 }
 
-float4 RayMarching(Ray ray)
+float4 RayMarching(Ray ray, out float depth)
 {
-	float4 result = (float4) 0.0; //float4(0.0, 0.412, 0.58, 0.0);
+	float4 result = float4(0.0, 0.0, 0.0, 1.0);
 	float start, final;
 	float t;
+
+	depth = 1.0;
+
 	if (IntersectBox(ray, BoxMinimum, BoxMaximum, start, final))
 	{
 		if (RayMarchingInsideCube(ray, start, final, t))
@@ -113,7 +116,13 @@ float4 RayMarching(Ray ray)
 			float3 Position = ray.o + ray.d * t;
 			float3 normal = CalcNormal(Position);
 			float3 color = (Position - BoxMinimum) / (BoxMaximum - BoxMinimum);
+			float far = 200.0;
+			float near = 0.1;
 			result = Shade(Position, normal, ray.d, 1.0);
+
+			float a = far / (far - near);
+			float b = 2.0 * far * near / (far - near);
+			depth = saturate((a + b) / Position.z);
 		}
 	}
 

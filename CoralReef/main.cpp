@@ -111,7 +111,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	DXUTInit(true, true, nullptr); // Parse the command line, show msgboxes on error, no extra command line params
 	DXUTSetCursorSettings(true, true); // Show the cursor and clip it when in full screen
 	DXUTCreateWindow(L"CoralReef");
-	DXUTCreateDevice(D3D_FEATURE_LEVEL_9_2, true, 800, 600);
+	DXUTCreateDevice(D3D_FEATURE_LEVEL_11_0, true, 800, 600);
 	DXUTMainLoop(); // Enter into the DXUT render loop
 
 	return DXUTGetExitCode();
@@ -422,7 +422,8 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 
 	// Clear the render target and depth stencil
 	auto pRTV = DXUTGetD3D11RenderTargetView();
-	pd3dImmediateContext->ClearRenderTargetView(pRTV, Colors::MidnightBlue);
+	float clr[4]{ 0.0, 0.0, 0.0, 0.0 };
+	pd3dImmediateContext->ClearRenderTargetView(pRTV, clr);
 	auto pDSV = DXUTGetD3D11DepthStencilView();
 	pd3dImmediateContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0, 0);
 
