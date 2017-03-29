@@ -1,10 +1,9 @@
 #ifndef DOMAIN_OPERATIONS_HLSL_
 #define DOMAIN_OPERATIONS_HLSL_
 
-float3 OperationRepetition( float3 p, float3 c )
+float3 OperationRepetition( float3 p, float3 spacing )
 {
-    float3 q = (p % c) - 0.5 * c;
-	return q;
+	return p % spacing - 0.5 * spacing;
 }
 
 float3 OperationTransform( float3 p, float4x4 m )

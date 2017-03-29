@@ -15,11 +15,6 @@ float ToRad(float degrees)
 	return degrees * PI / 180.0;
 }
 
-float Displacement1(float3 p, float angle)
-{
-	return sin(angle * p.x) * sin(angle * p.y) * sin(angle * p.z);
-}
-
 bool IntersectBox(in Ray ray, in float3 minimum, in float3 maximum, out float timeIn, out float timeOut)
 {
 	float3 OMIN = (minimum - ray.o) / ray.d;
@@ -82,23 +77,9 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity)
 {
 	float3 lightDir = normalize(LightPos - hitPos);
 
-	float4 diff;
-	float phong;
-	float4 spec = float4(1.0, 1.0, 1.0, 1.0);
-
-	if (hitPos.y > 2.8)
-	{
-		diff = float4(0.0, 0.08, 0.5, 1.0) * (1.0 - abs(fbm2(hitPos.xz, 4, 1)));
-		phong = Phong(normal, lightDir, viewDir, 30.0, diff, spec);
-	}
-	else
-	{
-		diff = float4(0.8666666666666667, 0.5215686274509804, 0.3607843137254902, 1.0) * (1.0 - abs(fbm2(hitPos.xz, 4, 3)));
-		phong = Phong(normal, lightDir, viewDir, 128.0, diff, spec);
-	}
+	Material mat = GetMaterial(hitPos);
 	
-	
-	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, 128.0, diff, spec);
+	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, mat.shininess, mat.diffuse, mat.specular);
 }
 
 float4 RayMarching(Ray ray, out float depth)

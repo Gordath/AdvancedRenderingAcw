@@ -8,6 +8,28 @@
 #include "DomainDeformations.hlsl"
 #include "DistanceDeformations.hlsl"
 
+Material GetMaterial(float3 p)
+{
+	Material mat;
+
+	mat.diffuse = float4(1.0, 1.0, 1.0, 1.0);
+	mat.specular = float4(1.0, 1.0, 1.0, 1.0);
+	mat.shininess = 1.0;
+
+	if (p.y > 2.8)
+	{
+		mat.diffuse.rgb = float3(0.0, 0.08, 0.5) * (1.0 - abs(fbm2(p.xz, 4, 1)));
+		mat.shininess = 30.0;
+	}
+	else
+	{
+		mat.diffuse.rgb = float3(0.8666666666666667, 0.5215686274509804, 0.3607843137254902) * (1.0 - abs(fbm2(p.xz, 4, 3)));
+		mat.shininess = 128.0;
+	}
+
+	return mat;
+}
+
 float Function(float3 Position, float levelVal)
 {
 	float X = Position.x;
@@ -95,9 +117,16 @@ float Sea(float3 p)
 						float4(0.0, -1.0, 0.0, 0.0));
 }
 
+float Coral(float3 p, float scale)
+{
+	return SignedTorus(OperationTwist(p / scale, radians(180.0) + fbm3(float3(p.xy, 10.0), 4, 4.0)), float2(1.0, 1.1)) * scale;
+	//return SignedCappedCylinder(p, float2(0.3, 1.0));
+}
+
 float SceneMap(float3 p)
 {
 	float res = OperationUnion(SeaFloor(p), Sea(p));
+	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 45.0), 1.0));
 	return res;
 }
 

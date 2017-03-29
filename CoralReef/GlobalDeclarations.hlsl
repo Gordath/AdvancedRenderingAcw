@@ -51,6 +51,13 @@ struct PS_OUTPUTWithDepth
 	float depth : SV_Depth;
 };
 
+struct Material
+{
+	float4 diffuse;
+	float4 specular;
+	float shininess;
+};
+
 DepthStencilState EnableDepth
 {
 	DepthEnable = TRUE;
