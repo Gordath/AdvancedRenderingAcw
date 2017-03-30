@@ -22,14 +22,12 @@ VS_QUAD RenderSceneVS(float4 vPos : POSITION)
 //--------------------------------------------------------------------------------------
 PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 { 
-	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 0.0;
-	float3 PixelPos = float3(xy, distEye2Canvas);
-//___________________________________ //2. for each pixel location (x,y), fire a ray
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Ray eyeray;
-	eyeray.o = E.xyz; //eye position specified in world space
-	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
+	Camera cam;
+	cam.position = float3(10.0, 0, -50.0);
+	cam.target = float3(0.0, 0.0, 1.0);
+	cam.fov = 45.0;
+
+	Ray eyeray = CreatePrimaryRay(cam, In.Position.xy, float2(WinWidth, WinHeight));
 
 	PS_OUTPUTWithDepth Output;
 	Output.RGBColor = RayMarching(eyeray, Output.depth);
@@ -39,7 +37,7 @@ PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 	float3 horizonColor = float3(0.0, 0.05, 0.2);
 
     // horizon fog
-	Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
+	//Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
 
     return Output;
 }
@@ -81,7 +79,7 @@ technique11 RenderSceneWithTexture1Light
 		SetDepthStencilState(EnableDepth, 1);
 	}
 
-	pass P1
+	/*pass P1
 	{
 		SetVertexShader(CompileShader(vs_5_0, RenderSceneVS()));
 		SetPixelShader(CompileShader(ps_5_0, PSCausticsGodrays()));
@@ -89,5 +87,5 @@ technique11 RenderSceneWithTexture1Light
 		SetDepthStencilState(DisableDepth, 1);
 
 		SetBlendState(AdditiveBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-	}
+	}*/
 }

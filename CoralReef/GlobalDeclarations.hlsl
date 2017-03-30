@@ -11,11 +11,11 @@ float g_fTime; // App's time in seconds
 float4x4 g_mWorld; // World matrix for object
 float4x4 g_mWorldViewProjection; // World * View * Projection matrix
 
-float4 E = float4(0, -0.4, -50, 1); //eye position
+float4 E = float4(0, 0.0, 20, 1); //eye position
 float nearPlane = 1.0;
 float farPlane = 1000.0;
 float4 LightColor = float4(1, 1, 1, 1);
-float3 LightPos = float3(0, 1, -50);
+float3 LightPos = float3(0, 1, 0);
 
 float WinWidth;
 float WinHeight;
@@ -56,6 +56,13 @@ struct Material
 	float4 diffuse;
 	float4 specular;
 	float shininess;
+};
+
+struct Camera
+{
+	float3 position;
+	float3 target;
+	float fov;
 };
 
 DepthStencilState EnableDepth
