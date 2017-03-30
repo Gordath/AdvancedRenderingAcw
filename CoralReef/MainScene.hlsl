@@ -107,7 +107,7 @@ float GodRays(float2 uv)
 
 float SeaFloor(float3 p)
 {
-	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 3, 0.2) * 0.17, p.z) + float3(0.0, 2.5, 0.0),
+	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 4, 0.2) * 0.08, p.z) + float3(0.0, 2.5, 0.0),
 						float4(0.0, 1.0, 0.0, 0.0));
 }
 

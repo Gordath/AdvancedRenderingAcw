@@ -17,9 +17,6 @@
     <None Include="CoralReef.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="SimplexNoise.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="PrimitiveDistanceFunctions.hlsl">
       <Filter>Shaders</Filter>
     </None>
@@ -42,6 +39,21 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="DistanceDeformations.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SimplexNoise.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SimplexNoiseHelper.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SimplexNoise2D.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SimplexNoise3D.hlsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="SimplexNoise4D.hlsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

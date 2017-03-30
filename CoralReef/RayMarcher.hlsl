@@ -3,10 +3,10 @@
 
 #include "MainScene.hlsl"
 
-#define INTERVALS 256
+#define INTERVALS 512
 #define MIN_DIST 0
-#define MAX_DIST 80
-#define EPSILON 0.001
+#define MAX_DIST 1000
+#define EPSILON 0.0001
 
 float3 CalcNormal(float3 Position)
 {
