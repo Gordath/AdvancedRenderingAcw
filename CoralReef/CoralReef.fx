@@ -47,15 +47,6 @@ PS_OUTPUT PSCausticsGodrays(VS_QUAD In)
 	PS_OUTPUT Output;
 	Output.RGBColor = float4(0.0, 0.0, 0.0, 1.0);
 
-	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 0.0;
-	float3 PixelPos = float3(xy, distEye2Canvas);
-//___________________________________ //2. for each pixel location (x,y), fire a ray
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Ray eyeray;
-	eyeray.o = E.xyz; //eye position specified in world space
-	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
-
 	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
 
 	float3 skyColor = float3(0.3, 1.0, 1.0);
@@ -79,7 +70,7 @@ technique11 RenderSceneWithTexture1Light
 		SetDepthStencilState(EnableDepth, 1);
 	}
 
-	/*pass P1
+	pass P1
 	{
 		SetVertexShader(CompileShader(vs_5_0, RenderSceneVS()));
 		SetPixelShader(CompileShader(ps_5_0, PSCausticsGodrays()));
@@ -87,5 +78,5 @@ technique11 RenderSceneWithTexture1Light
 		SetDepthStencilState(DisableDepth, 1);
 
 		SetBlendState(AdditiveBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-	}*/
+	}
 }
