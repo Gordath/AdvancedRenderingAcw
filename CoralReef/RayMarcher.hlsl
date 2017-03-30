@@ -3,10 +3,10 @@
 
 #include "MainScene.hlsl"
 
-#define INTERVALS 255
+#define INTERVALS 256
 #define MIN_DIST 0
-#define MAX_DIST 30
-#define EPSILON 0.0001
+#define MAX_DIST 80
+#define EPSILON 0.001
 
 float3 CalcNormal(float3 Position)
 {
@@ -22,20 +22,22 @@ bool RayMarch(in Ray ray, in float start, in float final, out float val)
 	float depth = start;
 	for (int i = 0; i < INTERVALS; i++)
 	{
-		float dist = SceneMap(ray.o + depth * ray.d);
-		if (dist < EPSILON)
+		float3 p = ray.o + depth * ray.d;
+		float dist = SceneMap(p);
+		if (abs(dist) < EPSILON)
 		{
 			val = depth;
 			return true;
 		}
-		depth += dist;
+		depth += dist * 0.9;
 		if (depth >= final)
 		{
-			val = depth;
+			val = final;
 			break;
 		}
 	}
 
+	val = final;
 	return false;
 }
 
@@ -59,7 +61,7 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity)
 
 float4 GetRayColour(Ray ray, out float depth)
 {
-	float4 result = float4(0.0, 0.0, 0.0, 1.0);
+	float4 result = float4(0.0, 0.05, 0.2, 1.0);
 	float start, final;
 	float t;
 
@@ -74,6 +76,9 @@ float4 GetRayColour(Ray ray, out float depth)
 		float near = MIN_DIST;
 			//result = float4(normalize(Position), 1.0);
 		result = Shade(Position, normal, ray.d, 1.0);
+
+		float fogAmount = 1.0 - exp(-t * 0.2);
+		result.rgb = lerp(result.rgb, float3(0.0, 0.05, 0.2), fogAmount);
 
 		float a = far / (far - near);
 		float b = far * near / (far - near);

@@ -23,7 +23,7 @@ VS_QUAD RenderSceneVS(float4 vPos : POSITION)
 PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 { 
 	Camera cam;
-	cam.position = float3(0.0, 0.0, -10.0); //float3(cos(g_fTime * 0.2) * 10.0, 0, sin(g_fTime * 0.2) * 10.0);
+	cam.position = float3(cos(g_fTime * 0.2) * 10.0, 0, sin(g_fTime * 0.2) * 10.0);
 	cam.target = float3(0, 0, 0.0);
 	cam.fov = 45.0;
 
@@ -31,13 +31,6 @@ PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 
 	PS_OUTPUTWithDepth Output;
 	Output.RGBColor = GetRayColour(eyeray, Output.depth);
-
-	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
-
-	float3 horizonColor = float3(0.0, 0.05, 0.2);
-
-    // horizon fog
-	Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
 
     return Output;
 }
