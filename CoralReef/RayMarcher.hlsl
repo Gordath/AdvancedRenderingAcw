@@ -99,8 +99,8 @@ float4 RayMarching(Ray ray, out float depth)
 			float3 color = (Position - BoxMinimum) / (BoxMaximum - BoxMinimum);
 			float far = 200.0;
 			float near = 0.1;
-			result = float4(normalize(Position), 1.0);
-			//Shade(Position, normal, ray.d, 1.0);
+			//result = float4(normalize(Position), 1.0);
+			result = Shade(Position, normal, ray.d, 1.0);
 
 			float a = far / (far - near);
 			float b = 2.0 * far * near / (far - near);
@@ -126,7 +126,7 @@ float4x4 LookAtLH(Camera cam, float3 up)
 							  float4(0.0, 0.0, 1.0, 0.0),
 							  float4(cam.position.x, cam.position.y, cam.position.z, 1.0));
 
-	return mul(trans, rot);
+	return mul(rot, trans);
 }
 
 Ray CreatePrimaryRay(Camera cam, float2 fragCoord, float2 resolution)

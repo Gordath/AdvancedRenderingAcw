@@ -119,14 +119,14 @@ float Sea(float3 p)
 
 float Coral(float3 p, float scale)
 {
-	//return SignedTorus(OperationTwist(p / scale, radians(180.0) + fbm3(float3(p.xy, 10.0), 4, 4.0)), float2(1.0, 1.1)) * scale;
-	return SignedCappedCylinder(p, float2(0.3, 1.0));
+	return SignedTorus(OperationTwist(p / scale, radians(180.0) + fbm3(float3(p.xy, 10.0), 4, 4.0)), float2(1.0, 1.1)) * scale;
+	//return SignedCappedCylinder(p / scale, float2(0.3, 1.0)) * scale;
 }
 
 float SceneMap(float3 p)
 {
 	float res = OperationUnion(SeaFloor(p), Sea(p));
-	res = OperationUnion(res, Coral(p + float3(0.0, 1.5, -50.0), 3.0));
+	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 0.0), 0.5));
 	return res;
 }
 
