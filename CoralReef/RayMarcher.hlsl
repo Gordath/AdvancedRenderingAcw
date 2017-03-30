@@ -24,7 +24,7 @@ bool RayMarch(in Ray ray, in float start, in float final, out float val)
 	{
 		float3 p = ray.o + depth * ray.d;
 		float dist = SceneMap(p);
-		if (abs(dist) < EPSILON)
+		if (dist < EPSILON)
 		{
 			val = depth;
 			return true;

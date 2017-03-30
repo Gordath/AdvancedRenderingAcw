@@ -16,7 +16,7 @@ Material GetMaterial(float3 p)
 	mat.specular = float4(1.0, 1.0, 1.0, 1.0);
 	mat.shininess = 1.0;
 
-	if (p.y > 2.8)
+	if (p.y > 2.6)
 	{
 		mat.diffuse.rgb = float3(0.0, 0.08, 0.5) * (1.0 - abs(fbm2(p.xz, 4, 1)));
 		mat.shininess = 30.0;
@@ -37,7 +37,7 @@ float Function(float3 Position, float levelVal)
 	float Z = Position.z;
 	float T = PI / 2.0;
 	float Fun = 2.0 - cos(X + T * Y) - cos(X - T * Y) - cos(Y + T * Z) -
-cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
+				cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
 	return Fun - levelVal;
 }
 
@@ -126,7 +126,7 @@ float Coral(float3 p, float scale)
 float SceneMap(float3 p)
 {
 	float res = OperationUnion(SeaFloor(p), Sea(p));
-	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 0.0), 0.5));
+	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 0.0), sin(g_fTime * 0.2) / 2.0 + 1.0));
 	return res;
 }
 
