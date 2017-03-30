@@ -30,14 +30,14 @@ PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 	Ray eyeray = CreatePrimaryRay(cam, In.Position.xy, float2(WinWidth, WinHeight));
 
 	PS_OUTPUTWithDepth Output;
-	Output.RGBColor = RayMarching(eyeray, Output.depth);
+	Output.RGBColor = GetRayColour(eyeray, Output.depth);
 
 	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
 
 	float3 horizonColor = float3(0.0, 0.05, 0.2);
 
     // horizon fog
-	//Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
+	Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
 
     return Output;
 }
