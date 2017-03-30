@@ -16,7 +16,7 @@ Material GetMaterial(float3 p)
 	mat.specular = float4(1.0, 1.0, 1.0, 1.0);
 	mat.shininess = 1.0;
 
-	if (p.y > 2.8)
+	if (p.y > 2.6)
 	{
 		mat.diffuse.rgb = float3(0.0, 0.08, 0.5) * (1.0 - abs(fbm2(p.xz, 4, 1)));
 		mat.shininess = 30.0;
@@ -37,7 +37,7 @@ float Function(float3 Position, float levelVal)
 	float Z = Position.z;
 	float T = PI / 2.0;
 	float Fun = 2.0 - cos(X + T * Y) - cos(X - T * Y) - cos(Y + T * Z) -
-cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
+				cos(Y - T * Z) - cos(Z - T * X) - cos(Z + T * X);
 	return Fun - levelVal;
 }
 
@@ -107,7 +107,7 @@ float GodRays(float2 uv)
 
 float SeaFloor(float3 p)
 {
-	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 3, 0.2) * 0.17, p.z) + float3(0.0, 1.5, 0.0),
+	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 4, 0.2) * 0.08, p.z) + float3(0.0, 2.5, 0.0),
 						float4(0.0, 1.0, 0.0, 0.0));
 }
 
@@ -120,13 +120,13 @@ float Sea(float3 p)
 float Coral(float3 p, float scale)
 {
 	return SignedTorus(OperationTwist(p / scale, radians(180.0) + fbm3(float3(p.xy, 10.0), 4, 4.0)), float2(1.0, 1.1)) * scale;
-	//return SignedCappedCylinder(p, float2(0.3, 1.0));
+	//return SignedCappedCylinder(p / scale, float2(0.3, 1.0)) * scale;
 }
 
 float SceneMap(float3 p)
 {
 	float res = OperationUnion(SeaFloor(p), Sea(p));
-	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 45.0), 1.0));
+	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 0.0), sin(g_fTime * 0.2) / 2.0 + 1.0));
 	return res;
 }
 

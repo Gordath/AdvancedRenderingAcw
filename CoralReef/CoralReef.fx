@@ -22,24 +22,15 @@ VS_QUAD RenderSceneVS(float4 vPos : POSITION)
 //--------------------------------------------------------------------------------------
 PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 { 
-	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 0.0;
-	float3 PixelPos = float3(xy, distEye2Canvas);
-//___________________________________ //2. for each pixel location (x,y), fire a ray
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Ray eyeray;
-	eyeray.o = E.xyz; //eye position specified in world space
-	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
+	Camera cam;
+	cam.position = float3(cos(g_fTime * 0.2) * 10.0, 0, sin(g_fTime * 0.2) * 10.0);
+	cam.target = float3(0, 0, 0.0);
+	cam.fov = 45.0;
+
+	Ray eyeray = CreatePrimaryRay(cam, In.Position.xy, float2(WinWidth, WinHeight));
 
 	PS_OUTPUTWithDepth Output;
-	Output.RGBColor = RayMarching(eyeray, Output.depth);
-
-	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
-
-	float3 horizonColor = float3(0.0, 0.05, 0.2);
-
-    // horizon fog
-	Output.RGBColor.rgb = lerp(Output.RGBColor.rgb, horizonColor, pow(1.0 - pow(eyeray.d.y, 2.0), 20.0));
+	Output.RGBColor = GetRayColour(eyeray, Output.depth);
 
     return Output;
 }
@@ -48,15 +39,6 @@ PS_OUTPUT PSCausticsGodrays(VS_QUAD In)
 {
 	PS_OUTPUT Output;
 	Output.RGBColor = float4(0.0, 0.0, 0.0, 1.0);
-
-	float2 xy = 0.02 * In.TextureUV * float2(WinWidth, WinHeight);
-	float distEye2Canvas = 0.0;
-	float3 PixelPos = float3(xy, distEye2Canvas);
-//___________________________________ //2. for each pixel location (x,y), fire a ray
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Ray eyeray;
-	eyeray.o = E.xyz; //eye position specified in world space
-	eyeray.d = normalize(PixelPos - E.xyz); //view direction in world space
 
 	float2 p = (float2(WinWidth, WinHeight) - 2.0 * In.Position.xy) / WinHeight;
 
