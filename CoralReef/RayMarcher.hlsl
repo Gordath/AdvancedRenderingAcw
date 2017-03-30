@@ -70,14 +70,14 @@ float4 GetRayColour(Ray ray, out float depth)
 		float3 Position = ray.o + ray.d * t;
 		float3 normal = CalcNormal(Position);
 		//float3 color = (Position - BoxMinimum) / (BoxMaximum - BoxMinimum);
-		float far = 200.0;
-		float near = 0.1;
+		float far = MAX_DIST;
+		float near = MIN_DIST;
 			//result = float4(normalize(Position), 1.0);
 		result = Shade(Position, normal, ray.d, 1.0);
 
 		float a = far / (far - near);
-		float b = 2.0 * far * near / (far - near);
-		depth = saturate((a + b) / Position.z);
+		float b = far * near / (far - near);
+		depth = (a + b) / t;
 	}
 
 	return result;
