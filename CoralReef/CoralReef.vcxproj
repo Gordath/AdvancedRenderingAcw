@@ -455,7 +455,37 @@
     <None Include="SimplexNoise4D.hlsl">
       <FileType>Document</FileType>
     </None>
-    <None Include="SimplexNoiseHelper.hlsl">
+    <None Include="NoiseHelperFunctions.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CellularNoise2D.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CellularNoise2x2.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CellularNoise2x2x2.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CellularNoise3D.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CellularNoise.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Noise.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

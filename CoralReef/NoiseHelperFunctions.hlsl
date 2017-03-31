@@ -1,5 +1,5 @@
-#ifndef SIMPLEX_NOISE_HELPER_HLSL_
-#define SIMPLEX_NOISE_HELPER_HLSL_
+#ifndef NOISE_HELPER_FUNCTIONS_HLSL_
+#define NOISE_HELPER_FUNCTIONS_HLSL_
 
 float mod289(float x)
 {
@@ -19,6 +19,16 @@ float3 mod289(float3 x)
 float4 mod289(float4 x)
 {
 	return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
+
+float3 mod7(float3 x)
+{
+	return x - floor(x * (1.0 / 7.0)) * 7.0;
+}
+
+float4 mod7(float4 x)
+{
+	return x - floor(x * (1.0 / 7.0)) * 7.0;
 }
 
 float permute(float x)
@@ -59,4 +69,4 @@ float4 grad4(float j, float4 ip)
 	return p;
 }
 
-#endif //SIMPLEX_NOISE_HELPER_HLSL_
+#endif //NOISE_HELPER_FUNCTIONS_HLSL_

@@ -1,7 +1,8 @@
 #ifndef MAIN_SCENE_HLSL_
 #define MAIN_SCENE_HLSL_
 
-#include "SimplexNoise.hlsl"
+#include "GlobalDeclarations.hlsl"
+#include "Noise.hlsl"
 #include "PrimitiveDistanceFunctions.hlsl"
 #include "DistanceOperations.hlsl"
 #include "DomainOperations.hlsl"
