@@ -10,39 +10,6 @@
 #include "DistanceDeformations.hlsl"
 #include "Materials.hlsl"
 
-Material GetMaterial(float3 p, int materialId)
-{
-	Material mat;
-
-	mat.diffuse = float4(1.0, 1.0, 1.0, 1.0);
-	mat.specular = float4(1.0, 1.0, 1.0, 1.0);
-	mat.shininess = 1.0;
-
-	if (materialId == MATERIAL_SEA_SURFACE)
-	{
-		mat.diffuse.rgb = seaSurfaceColour * (1.0 - abs(fbm2(p.xz, 2, 1)));
-		mat.shininess = 30.0;
-	}
-	else if(materialId == MATERIAL_SEA_FLOOR)
-	{
-		mat.diffuse.rgb = seaFloorColour * (1.0 - abs(fbm2(p.xz, 4, 3)));
-		mat.shininess = 128.0;
-        mat.specular *= 0.1;
-    }
-    else if (materialId == MATERIAL_SEA_WEED)
-    {
-        mat.diffuse.rgb = seaWeedColour * (abs(fbm2(p.xz, 4, 1)));
-        mat.shininess = 128.0;
-    }
-    else if (materialId == MATERIAL_CORAL)
-    {
-        mat.diffuse.rgb = coralColour;
-        mat.shininess = 30.0;
-    }
-
-	return mat;
-}
-
 float Function(float3 Position, float levelVal)
 {
 	float X = Position.x;
@@ -118,6 +85,41 @@ float GodRays(float2 uv)
 	return light;
 }
 
+Material GetMaterial(float3 p, int materialId)
+{
+    Material mat;
+
+    mat.diffuse = float4(1.0, 1.0, 1.0, 1.0);
+    mat.specular = float4(1.0, 1.0, 1.0, 1.0);
+    mat.shininess = 1.0;
+
+    if (materialId == MATERIAL_SEA_SURFACE)
+    {
+        mat.diffuse.rgb = seaSurfaceColour * (1.0 - abs(fbm2(p.xz, 2, 1)));
+        mat.shininess = 30.0;
+    }
+    else if (materialId == MATERIAL_SEA_FLOOR)
+    {
+        mat.diffuse.rgb = seaFloorColour * (1.0 - abs(fbm2(p.xz, 4, 3)));
+        mat.shininess = 128.0;
+        mat.specular *= 0.1;
+    }
+    else if (materialId == MATERIAL_SEA_WEED)
+    {
+        mat.diffuse.rgb = seaWeedColour * (abs(fbm2(p.xz, 4, 1)));
+        mat.shininess = 128.0;
+    }
+    else if (materialId == MATERIAL_CORAL)
+    {
+        mat.diffuse.rgb = coralColour;
+        mat.shininess = 30.0;
+    }
+
+    //mat.diffuse.rgb += 0.3 * caustic(float2(p.x, p.z));
+
+    return mat;
+}
+
 float SeaFloor(float3 p)
 {
 	return SignedPlane(float3(p.x, p.y + fbm2(p.xz, 4, 0.2) * 0.08, p.z) + float3(0.0, 2.5, 0.0),
@@ -153,8 +155,8 @@ float SceneMap(float3 p, out int materialId)
     float3 tilledP = OperationRepetition(float3(p.x + cos(g_fTime * speed + p.y * frequency) * amplitude, p.y + 1.0, p.z), float3(5.0, 0.0, 5.0), bool3(true, false, true));
     res = OperationUnion(res, materialId, Seaweed(tilledP), MATERIAL_SEA_WEED, materialId);
 
-    tilledP = OperationRepetition(float3(p.x, p.y + sin(g_fTime * 0.2) * 3.0 + fbm3(float3(1, 1, 1), 1, 1), p.z), float3(3.0, 3.0, 3.0), bool3(true, false, true));
-    res = OperationUnion(res, materialId, SignedSphere(tilledP, 0.3), MATERIAL_BUBBLE, materialId);
+    //tilledP = OperationRepetition(float3(p.x, p.y + sin(g_fTime * 0.2) * 3.0 + fbm3(float3(1, 1, 1), 1, 1), p.z), float3(3.0, 3.0, 3.0), bool3(true, false, true));
+    //res = OperationUnion(res, materialId, SignedSphere(tilledP, 0.3), MATERIAL_BUBBLE, materialId);
 
     return res;
 }

@@ -5,7 +5,7 @@
 
 #define INTERVALS 256
 #define MIN_DIST 0
-#define MAX_DIST 25
+#define MAX_DIST 20
 #define EPSILON 0.001
 
 float3 CalcNormal(float3 Position)
@@ -80,7 +80,7 @@ float4 GetRayColour(Ray ray, out float depth)
 		result = Shade(Position, normal, ray.d, 1.0, materialId);
 
         //caustics
-        result.rgb += (0.3 * caustic(float2(Position.x, Position.z)));
+        result.rgb += 0.3 * caustic(float2(Position.x, Position.z));
 
 		float fogAmount = 1.0 - exp(-t * 0.2);
 		result.rgb = lerp(result.rgb, float3(0.0, 0.05, 0.2), fogAmount);
@@ -128,7 +128,6 @@ Ray CreatePrimaryRay(Camera cam, float2 fragCoord, float2 resolution)
 	float3x3 rotOnly = (float3x3) viewMat;
 
 	ray.d = mul(ray.d, rotOnly);
-    ray.d = normalize(ray.d);
 	ray.o = mul(float4(ray.o, 1.0), viewMat).xyz;
 
 	return ray;
