@@ -8,8 +8,9 @@
 #include "DomainOperations.hlsl"
 #include "DomainDeformations.hlsl"
 #include "DistanceDeformations.hlsl"
+#include "Materials.hlsl"
 
-Material GetMaterial(float3 p)
+Material GetMaterial(float3 p, int materialId)
 {
 	Material mat;
 
@@ -17,16 +18,27 @@ Material GetMaterial(float3 p)
 	mat.specular = float4(1.0, 1.0, 1.0, 1.0);
 	mat.shininess = 1.0;
 
-	if (p.y > 2.6)
+	if (materialId == MATERIAL_SEA_SURFACE)
 	{
-		mat.diffuse.rgb = float3(0.0, 0.08, 0.5) * (1.0 - abs(fbm2(p.xz, 4, 1)));
+		mat.diffuse.rgb = seaSurfaceColour * (1.0 - abs(fbm2(p.xz, 2, 1)));
 		mat.shininess = 30.0;
 	}
-	else
+	else if(materialId == MATERIAL_SEA_FLOOR)
 	{
-		mat.diffuse.rgb = float3(0.8666666666666667, 0.5215686274509804, 0.3607843137254902) * (1.0 - abs(fbm2(p.xz, 4, 3)));
+		mat.diffuse.rgb = seaFloorColour * (1.0 - abs(fbm2(p.xz, 4, 3)));
 		mat.shininess = 128.0;
-	}
+        mat.specular *= 0.1;
+    }
+    else if (materialId == MATERIAL_SEA_WEED)
+    {
+        mat.diffuse.rgb = seaWeedColour * (abs(fbm2(p.xz, 4, 1)));
+        mat.shininess = 128.0;
+    }
+    else if (materialId == MATERIAL_CORAL)
+    {
+        mat.diffuse.rgb = coralColour;
+        mat.shininess = 30.0;
+    }
 
 	return mat;
 }
@@ -121,14 +133,26 @@ float Sea(float3 p)
 float Coral(float3 p, float scale)
 {
 	return SignedTorus(OperationTwist(p / scale, radians(180.0) + fbm3(float3(p.xy, 10.0), 4, 4.0)), float2(1.0, 1.1)) * scale;
-	//return SignedCappedCylinder(p / scale, float2(0.3, 1.0)) * scale;
 }
 
-float SceneMap(float3 p)
+float Seaweed(float3 p)
 {
-	float res = OperationUnion(SeaFloor(p), Sea(p));
-	res = OperationUnion(res, Coral(p + float3(0.0, 0.0, 0.0), sin(g_fTime * 0.2) / 2.0 + 1.0));
-	return res;
+    return SignedCappedCylinder(p + fbm3(p, 4, 2.3) * 0.1, float2(0.035, 2.0));
+}
+
+float SceneMap(float3 p, out int materialId)
+{
+	float res = SeaFloor(p);
+    materialId = MATERIAL_SEA_FLOOR;
+    //res = OperationUnion(res, materialId, Sea(p), MATERIAL_SEA_SURFACE, materialId);
+	res = OperationUnion(res, materialId, Coral(p + float3(0.0, 1.0, 0.0), 0.5), MATERIAL_CORAL, materialId);
+
+    float frequency = 2.5;
+    float amplitude = 0.1;
+    float speed = 1.0;
+    float3 tilledP = OperationRepetition(float3(p.x + cos(g_fTime * speed + p.y * frequency) * amplitude, p.y + 1.0, p.z), float3(5.0, 0.0, 5.0), bool3(true, false, true));
+    res = OperationUnion(res, materialId, Seaweed(tilledP), MATERIAL_SEA_WEED, materialId);
+    return res;
 }
 
 #endif //MAIN_SCENE_HLSL_

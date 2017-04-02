@@ -3,27 +3,28 @@
 
 #include "MainScene.hlsl"
 
-#define INTERVALS 512
+#define INTERVALS 256
 #define MIN_DIST 0
-#define MAX_DIST 1000
-#define EPSILON 0.0001
+#define MAX_DIST 25
+#define EPSILON 0.001
 
 float3 CalcNormal(float3 Position)
 {
+    int materialId;
 	float2 e = float2(1.0, -1.0) * 0.5773 * 0.0005;
-	return normalize(e.xyy * SceneMap(Position + e.xyy).x +
-					  e.yyx * SceneMap(Position + e.yyx).x +
-					  e.yxy * SceneMap(Position + e.yxy).x +
-					  e.xxx * SceneMap(Position + e.xxx).x);
+	return normalize(e.xyy * SceneMap(Position + e.xyy, materialId).x +
+					  e.yyx * SceneMap(Position + e.yyx, materialId).x +
+					  e.yxy * SceneMap(Position + e.yxy, materialId).x +
+					  e.xxx * SceneMap(Position + e.xxx, materialId).x);
 }
 
-bool RayMarch(in Ray ray, in float start, in float final, out float val)
+bool RayMarch(in Ray ray, in float start, in float final, out float val, out int materialId)
 {
 	float depth = start;
 	for (int i = 0; i < INTERVALS; i++)
 	{
 		float3 p = ray.o + depth * ray.d;
-		float dist = SceneMap(p);
+		float dist = SceneMap(p, materialId);
 		if (dist < EPSILON)
 		{
 			val = depth;
@@ -50,11 +51,11 @@ float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor,
 	return diff * diffuseColor + spec * specularColor;
 }
 
-float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity)
+float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity, int materialId)
 {
 	float3 lightDir = normalize(LightPos - hitPos);
 
-	Material mat = GetMaterial(hitPos);
+	Material mat = GetMaterial(hitPos, materialId);
 	
 	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, mat.shininess, mat.diffuse, mat.specular);
 }
@@ -67,7 +68,8 @@ float4 GetRayColour(Ray ray, out float depth)
 
 	depth = 1.0;
 
-	if (RayMarch(ray, MIN_DIST, MAX_DIST, t))
+    int materialId = -1;
+	if (RayMarch(ray, MIN_DIST, MAX_DIST, t, materialId))
 	{
 		float3 Position = ray.o + ray.d * t;
 		float3 normal = CalcNormal(Position);
@@ -75,14 +77,18 @@ float4 GetRayColour(Ray ray, out float depth)
 		float far = MAX_DIST;
 		float near = MIN_DIST;
 			//result = float4(normalize(Position), 1.0);
-		result = Shade(Position, normal, ray.d, 1.0);
+		result = Shade(Position, normal, ray.d, 1.0, materialId);
+
+        //caustics
+        float caustic = 1.0 / abs(fbm3(float3(Position.xz, g_fTime * 0.2), 2, 0.5));
+        result.rgb += caustic * 0.1;
 
 		float fogAmount = 1.0 - exp(-t * 0.2);
 		result.rgb = lerp(result.rgb, float3(0.0, 0.05, 0.2), fogAmount);
 
-		float a = far / (far - near);
+		/*float a = far / (far - near);
 		float b = far * near / (far - near);
-		depth = (a + b) / t;
+		depth = (a + b) / t;*/
 	}
 
 	return result;
@@ -114,7 +120,7 @@ Ray CreatePrimaryRay(Camera cam, float2 fragCoord, float2 resolution)
 	ray.o = float3(0.0, 0.0, 0.0);
 	ray.d.x = (2.0f * fragCoord.x / resolution.x - 1.0f) * aspect;
 	ray.d.y = 1.0 - 2.0 * fragCoord.y / resolution.y;
-	ray.d.z = 1.0 / tan(cam.fov / 2.0);
+	ray.d.z = 1.0 / tan(cam.fov * 0.5);
 
 	ray.d = normalize(ray.d);
 
@@ -123,6 +129,7 @@ Ray CreatePrimaryRay(Camera cam, float2 fragCoord, float2 resolution)
 	float3x3 rotOnly = (float3x3) viewMat;
 
 	ray.d = mul(ray.d, rotOnly);
+    ray.d = normalize(ray.d);
 	ray.o = mul(float4(ray.o, 1.0), viewMat).xyz;
 
 	return ray;
