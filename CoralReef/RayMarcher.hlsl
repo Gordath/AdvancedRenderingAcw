@@ -3,10 +3,10 @@
 
 #include "MainScene.hlsl"
 
-#define INTERVALS 256
+#define INTERVALS 512
 #define MIN_DIST 0
 #define MAX_DIST 20
-#define EPSILON 0.001
+#define EPSILON 0.00001
 
 float3 CalcNormal(float3 Position)
 {
@@ -51,13 +51,45 @@ float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor,
 	return diff * diffuseColor + spec * specularColor;
 }
 
+Ray GetReflectedRay(float3 p, float3 rayDir, float3 n)
+{
+    Ray r;
+    r.o = p;
+    r.d = normalize(reflect(rayDir, n));
+
+    return r;
+}
+
 float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity, int materialId)
 {
 	float3 lightDir = normalize(LightPos - hitPos);
 
 	Material mat = GetMaterial(hitPos, materialId);
-	
-	return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, mat.shininess, mat.diffuse, mat.specular);
+
+    float4 res = LightColor * lightIntensity * Phong(normal, lightDir, viewDir, mat.shininess, mat.diffuse, mat.specular);
+
+    float reflectivity = 1.0 - mat.roughness;
+	if (reflectivity > 0)
+    {
+        Ray ray = GetReflectedRay(hitPos, viewDir, normal);
+        ray.o += ray.d * EPSILON;
+        float t = 0.0;
+        int mId = -1;
+        if (RayMarch(ray, MIN_DIST, MAX_DIST, t, mId))
+        {
+            float3 p = ray.o + t * ray.d;
+            Material reflMat = GetMaterial(p, mId);
+            float4 reflColor = LightColor * lightIntensity * Phong(CalcNormal(p), normalize(LightPos - p), ray.d, reflMat.shininess, reflMat.diffuse, reflMat.specular);
+            res = res * mat.roughness + reflColor * reflectivity;
+        }
+        else
+        {
+            res = res * mat.roughness + float4(0.0, 0.05, 0.2, 1.0) * reflectivity;
+
+        }
+    }
+
+	return res;
 }
 
 float4 GetRayColour(Ray ray, out float depth)

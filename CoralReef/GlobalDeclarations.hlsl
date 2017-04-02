@@ -69,6 +69,7 @@ struct Material
 	float4 diffuse;
 	float4 specular;
 	float shininess;
+    float roughness;
 };
 
 struct Camera

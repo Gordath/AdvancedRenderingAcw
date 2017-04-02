@@ -11,6 +11,6 @@ const float3 seaFloorColour = float3(0.8666666666666667, 0.5215686274509804, 0.3
 const float3 seaSurfaceColour = float3(0.0, 0.08, 0.5);
 const float3 seaWeedColour = float3(0.0, 1.0, 0.0);
 const float3 coralColour = float3(1.0, 0.0, 0.0);
-const float3 bubbleColour = float3(1.0, 1.0, 1.0);
+const float3 bubbleColour = float3(0.0, 0.0, 0.0);
 
 #endif //MATERIALS_HLSL_

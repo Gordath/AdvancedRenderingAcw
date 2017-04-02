@@ -92,6 +92,7 @@ Material GetMaterial(float3 p, int materialId)
     mat.diffuse = float4(1.0, 1.0, 1.0, 1.0);
     mat.specular = float4(1.0, 1.0, 1.0, 1.0);
     mat.shininess = 1.0;
+    mat.roughness = 1.0;
 
     if (materialId == MATERIAL_SEA_SURFACE)
     {
@@ -113,9 +114,14 @@ Material GetMaterial(float3 p, int materialId)
     {
         mat.diffuse.rgb = coralColour;
         mat.shininess = 30.0;
+        mat.roughness = 0.0;
     }
-
-    //mat.diffuse.rgb += 0.3 * caustic(float2(p.x, p.z));
+    else if (materialId == MATERIAL_BUBBLE)
+    {
+        mat.diffuse.rgb = bubbleColour;
+        mat.shininess = 30.0;
+        mat.roughness = 0.3;
+    }
 
     return mat;
 }
@@ -147,7 +153,7 @@ float SceneMap(float3 p, out int materialId)
 	float res = SeaFloor(p);
     materialId = MATERIAL_SEA_FLOOR;
     //res = OperationUnion(res, materialId, Sea(p), MATERIAL_SEA_SURFACE, materialId);
-	res = OperationUnion(res, materialId, Coral(p + float3(0.0, 1.0, 0.0), 0.5), MATERIAL_CORAL, materialId);
+	res = OperationUnion(res, materialId, SignedSphere(p, 1.0), MATERIAL_CORAL, materialId);
 
     float frequency = 2.5;
     float amplitude = 0.1;
@@ -165,7 +171,7 @@ float SceneMap(float3 p, out int materialId)
     frequency = 16.0;
     amplitude = 0.01;
     speed = 4.0;
-    tmpP = float3(p.x - 1.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2) % 6 + 3.0, p.z);
+    tmpP = float3(p.x + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2) % 6 + 3.0, p.z + 3.0);
     res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
 
     return res;
