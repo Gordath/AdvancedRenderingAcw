@@ -156,7 +156,17 @@ float SceneMap(float3 p, out int materialId)
     res = OperationUnion(res, materialId, Seaweed(tilledP), MATERIAL_SEA_WEED, materialId);
 
     //tilledP = OperationRepetition(float3(p.x, p.y + sin(g_fTime * 0.2) * 3.0 + fbm3(float3(1, 1, 1), 1, 1), p.z), float3(3.0, 3.0, 3.0), bool3(true, false, true));
-    //res = OperationUnion(res, materialId, SignedSphere(tilledP, 0.3), MATERIAL_BUBBLE, materialId);
+    frequency = 16.0;
+    amplitude = 0.01;
+    speed = 6.0;
+    float3 tmpP = float3(p.x + 2.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.yz);
+    res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
+
+    frequency = 16.0;
+    amplitude = 0.01;
+    speed = 4.0;
+    tmpP = float3(p.x - 1.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2) % 6 + 3.0, p.z);
+    res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
 
     return res;
 }
