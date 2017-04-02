@@ -115,7 +115,7 @@ technique11 CoralReef
         //SetDepthStencilState(DisableDepth, 1);
     }*/
 
-	pass P2
+	/*pass P2
 	{
         SetVertexShader(CompileShader(vs_5_0, RenderSceneVSRayMarch()));
 		SetPixelShader(CompileShader(ps_5_0, PSCausticsGodrays()));
@@ -123,5 +123,5 @@ technique11 CoralReef
 		SetDepthStencilState(DisableDepth, 1);
 
 		SetBlendState(AdditiveBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-	}
+	}*/
 }

@@ -80,8 +80,7 @@ float4 GetRayColour(Ray ray, out float depth)
 		result = Shade(Position, normal, ray.d, 1.0, materialId);
 
         //caustics
-        float caustic = 1.0 / abs(fbm3(float3(Position.xz, g_fTime * 0.2), 2, 0.5));
-        result.rgb += caustic * 0.1;
+        result.rgb += (0.3 * caustic(float2(Position.x, Position.z)));
 
 		float fogAmount = 1.0 - exp(-t * 0.2);
 		result.rgb = lerp(result.rgb, float3(0.0, 0.05, 0.2), fogAmount);
