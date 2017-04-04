@@ -114,13 +114,13 @@ Material GetMaterial(float3 p, int materialId)
     {
         mat.diffuse.rgb = coralColour;
         mat.shininess = 30.0;
-        mat.roughness = 0.0;
+        mat.roughness = 0.7;
     }
     else if (materialId == MATERIAL_BUBBLE)
     {
         mat.diffuse.rgb = bubbleColour;
         mat.shininess = 30.0;
-        mat.roughness = 0.3;
+        mat.roughness = 0.2;
     }
 
     return mat;
@@ -154,6 +154,7 @@ float SceneMap(float3 p, out int materialId)
     materialId = MATERIAL_SEA_FLOOR;
     //res = OperationUnion(res, materialId, Sea(p), MATERIAL_SEA_SURFACE, materialId);
 	res = OperationUnion(res, materialId, SignedSphere(p, 1.0), MATERIAL_CORAL, materialId);
+    //res = OperationUnion(res, materialId, Coral(p, 0.5), MATERIAL_CORAL, materialId);
 
     float frequency = 2.5;
     float amplitude = 0.1;

@@ -72,7 +72,7 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
 	if (reflectivity > 0)
     {
         Ray ray = GetReflectedRay(hitPos, viewDir, normal);
-        ray.o += ray.d * EPSILON;
+        ray.o += ray.d * EPSILON; //advance 1 step to avoid finding an intersection with the same object.
         float t = 0.0;
         int mId = -1;
         if (RayMarch(ray, MIN_DIST, MAX_DIST, t, mId))
@@ -85,7 +85,6 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
         else
         {
             res = res * mat.roughness + float4(0.0, 0.05, 0.2, 1.0) * reflectivity;
-
         }
     }
 
