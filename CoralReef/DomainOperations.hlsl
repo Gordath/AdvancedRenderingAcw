@@ -20,8 +20,6 @@ float3 OperationRepetition(float3 p, float3 distance, bool3 repeatOnAxis)
 
 float3 OperationTransform( float3 p, float4x4 m )
 {
-    //float3 q = invert(m)*p; Why inverse the matrix here?
-    //return primitive(q); //Any primitive distance function goes here. Maibe ifdef the return type.
 	return float3(0.0, 0.0, 0.0);
 }
 

@@ -70,6 +70,8 @@ struct Material
 	float4 specular;
 	float shininess;
     float roughness;
+    float fresnelPower;
+    float fresnelBias;
 };
 
 struct Camera

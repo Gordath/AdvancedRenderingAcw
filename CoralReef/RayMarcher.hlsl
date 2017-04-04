@@ -3,10 +3,10 @@
 
 #include "MainScene.hlsl"
 
-#define INTERVALS 512
+#define INTERVALS 256
 #define MIN_DIST 0
 #define MAX_DIST 20
-#define EPSILON 0.00001
+#define EPSILON 0.005
 
 float3 CalcNormal(float3 Position)
 {
@@ -60,13 +60,26 @@ Ray GetReflectedRay(float3 p, float3 rayDir, float3 n)
     return r;
 }
 
+float GetFresnelTerm(float3 camPos, float3 normal, Material mat)
+{
+    float fresnelScale = 1.0 - mat.fresnelBias;
+    return mat.fresnelBias + fresnelScale * pow(saturate(1.0 + dot(camPos, normal)), mat.fresnelPower);
+}
+
 float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity, int materialId)
 {
 	float3 lightDir = normalize(LightPos - hitPos);
 
 	Material mat = GetMaterial(hitPos, materialId);
+    float fresnelTerm = 1.0;
+    //GetFresnelTerm(viewDir, normal, mat);
 
     float4 res = LightColor * lightIntensity * Phong(normal, lightDir, viewDir, mat.shininess, mat.diffuse, mat.specular);
+
+    if (materialId == MATERIAL_SEA_FLOOR)
+    {
+        res.rgb += 0.3 * caustic(float2(hitPos.x, hitPos.z));
+    }
 
     float reflectivity = 1.0 - mat.roughness;
 	if (reflectivity > 0)
@@ -80,11 +93,11 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
             float3 p = ray.o + t * ray.d;
             Material reflMat = GetMaterial(p, mId);
             float4 reflColor = LightColor * lightIntensity * Phong(CalcNormal(p), normalize(LightPos - p), ray.d, reflMat.shininess, reflMat.diffuse, reflMat.specular);
-            res = res * mat.roughness + reflColor * reflectivity;
+            res = res * mat.roughness + reflColor * fresnelTerm * reflectivity;
         }
         else
         {
-            res = res * mat.roughness + float4(0.0, 0.05, 0.2, 1.0) * reflectivity;
+            res = res * mat.roughness + float4(0.0, 0.05, 0.2, 1.0) * fresnelTerm * reflectivity;
         }
     }
 
@@ -110,18 +123,11 @@ float4 GetRayColour(Ray ray, out float depth)
 			//result = float4(normalize(Position), 1.0);
 		result = Shade(Position, normal, ray.d, 1.0, materialId);
 
-        //caustics
-        result.rgb += 0.3 * caustic(float2(Position.x, Position.z));
-
 		float fogAmount = 1.0 - exp(-t * 0.2);
 		result.rgb = lerp(result.rgb, float3(0.0, 0.05, 0.2), fogAmount);
+    }
 
-		/*float a = far / (far - near);
-		float b = far * near / (far - near);
-		depth = (a + b) / t;*/
-	}
-
-	return result;
+    return result;
 }
 
 float4x4 LookAtLH(Camera cam, float3 up)

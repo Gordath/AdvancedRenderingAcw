@@ -391,7 +391,7 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChai
 
 	// Setup the camera's projection parameters
 	float fAspectRatio = pBackBufferSurfaceDesc->Width / static_cast<FLOAT>(pBackBufferSurfaceDesc->Height);
-	g_Camera.SetProjParams(XM_PI / 4, fAspectRatio, 2.0f, 4000.0f);
+	g_Camera.SetProjParams(45.0, fAspectRatio, 0.0f, 20.0f);
 	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 	g_Camera.SetButtonMasks(MOUSE_LEFT_BUTTON, MOUSE_WHEEL, MOUSE_MIDDLE_BUTTON);
 

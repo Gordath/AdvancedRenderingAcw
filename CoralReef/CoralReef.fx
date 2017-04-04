@@ -94,9 +94,6 @@ PS_OUTPUT RenderScenePSExplicit(VS_OUTPUT In)
     return output;
 }
 
-//--------------------------------------------------------------------------------------
-// Renders scene to render target using D3D11 Techniques
-//--------------------------------------------------------------------------------------
 technique11 CoralReef
 {
 	pass P0
@@ -112,7 +109,8 @@ technique11 CoralReef
         SetVertexShader(CompileShader(vs_5_0, RenderSceneVSExplicit()));
         SetPixelShader(CompileShader(ps_5_0, RenderScenePSExplicit()));
 
-        //SetDepthStencilState(DisableDepth, 1);
+        SetDepthStencilState(DisableDepth, 1);
+        SetBlendState(NoBlend, float4(0.0, 0.0, 0.0, 0.0), 0xFFFFFFFF);
     }*/
 
 	pass P2
@@ -120,7 +118,7 @@ technique11 CoralReef
         SetVertexShader(CompileShader(vs_5_0, RenderSceneVSRayMarch()));
 		SetPixelShader(CompileShader(ps_5_0, PSCausticsGodrays()));
 
-		SetDepthStencilState(DisableDepth, 1);
+		SetDepthStencilState(DisableDepth, 0);
 
 		SetBlendState(AdditiveBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 	}
