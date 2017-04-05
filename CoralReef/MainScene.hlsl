@@ -95,6 +95,7 @@ Material GetMaterial(float3 p, int materialId)
     mat.roughness = 1.0;
     mat.fresnelBias = 1.0;
     mat.fresnelPower = 1.0;
+    mat.ior = 0.0;
 
     if (materialId == MATERIAL_SEA_SURFACE)
     {
@@ -122,9 +123,10 @@ Material GetMaterial(float3 p, int materialId)
     {
         mat.diffuse.rgb = bubbleColour;
         mat.shininess = 30.0;
-        mat.roughness = 0.2;
-        mat.fresnelBias = 0.03;
+        mat.roughness = 0.0;
+        mat.fresnelBias = 0.5;
         mat.fresnelPower = 3.0;
+        mat.ior = 1.0;
     }
 
     return mat;
@@ -239,15 +241,39 @@ float SceneMap(float3 p, out int materialId)
     res = OperationUnion(res, materialId, Seaweed(tilledP), MATERIAL_SEA_WEED, materialId);
 
     frequency = 16.0;
-    amplitude = 0.01;
+    amplitude = 0.03;
     speed = 6.0;
     float3 tmpP = float3(p.x + 2.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2 - 1.0) % 6 + 3.0, p.z);
     res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
 
     frequency = 16.0;
-    amplitude = 0.01;
+    amplitude = 0.03;
     speed = 4.0;
     tmpP = float3(p.x + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2) % 6 + 3.0, p.z + 3.0);
+    res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
+
+    frequency = 16.0;
+    amplitude = 0.03;
+    speed = 6.0;
+    tmpP = float3(p.x + 2.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2 - 1.0) % 6 + 3.0, p.z - 3.0);
+    res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
+
+    frequency = 16.0;
+    amplitude = 0.03;
+    speed = 4.0;
+    tmpP = float3(p.x - 4.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2 - 3.0) % 6 + 3.0, p.z + 4.0);
+    res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
+
+    frequency = 16.0;
+    amplitude = 0.03;
+    speed = 6.0;
+    tmpP = float3(p.x + 3.0 + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2 - 1.0) % 6 + 3.0, p.z + 1.5);
+    res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
+
+    frequency = 16.0;
+    amplitude = 0.03;
+    speed = 4.0;
+    tmpP = float3(p.x + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2 - 2.0) % 6 + 3.0, p.z + 3.0);
     res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
 
     return res;

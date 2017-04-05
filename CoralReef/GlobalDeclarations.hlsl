@@ -72,6 +72,7 @@ struct Material
     float roughness;
     float fresnelPower;
     float fresnelBias;
+    float ior;
 };
 
 struct Camera

@@ -71,16 +71,17 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
 	float3 lightDir = normalize(LightPos - hitPos);
 
 	Material mat = GetMaterial(hitPos, materialId);
-    float fresnelTerm = 1.0;
-    //GetFresnelTerm(viewDir, normal, mat);
+    float fresnelTerm = GetFresnelTerm(viewDir, normal, mat);
 
     float4 res = LightColor * lightIntensity * Phong(normal, lightDir, viewDir, mat.shininess, mat.diffuse, mat.specular);
 
+    //caustics only on the sea floor
     if (materialId == MATERIAL_SEA_FLOOR)
     {
         res.rgb += 0.3 * caustic(float2(hitPos.x, hitPos.z));
     }
 
+    //reflection
     float reflectivity = 1.0 - mat.roughness;
 	if (reflectivity > 0)
     {
@@ -98,6 +99,39 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
         else
         {
             res = res * mat.roughness + float4(0.0, 0.05, 0.2, 1.0) * fresnelTerm * reflectivity;
+        }
+    }
+
+    //refraction
+    if (mat.ior > 0.0)
+    {
+        //ray that enters the object
+        Ray refrRay;
+        refrRay.d = refract(viewDir, normal, mat.ior);
+        refrRay.o = hitPos;
+        refrRay.o += normalize(refrRay.d);
+        
+        float t = 0.0;
+        int mId = -1;
+        if (RayMarch(refrRay, MIN_DIST, MAX_DIST, t, mId))
+        {
+            float3 p = refrRay.o + t * refrRay.d;
+            float3 n = CalcNormal(p);
+
+            //ray that exits the object
+            Ray refrRay2; 
+            refrRay2.d = refract(refrRay.d, n, 1.33 / mat.ior);
+            refrRay2.o = p;
+            refrRay2.o += refrRay2.d * EPSILON;
+            if (RayMarch(refrRay2, MIN_DIST, MAX_DIST, t, mId))
+            {
+                float3 p = refrRay2.o + t * refrRay2.d;
+                float3 n = CalcNormal(p);
+                Material m = GetMaterial(p, mId);
+
+                float4 refrColor = LightColor * lightIntensity * Phong(n, normalize(LightPos - p), refrRay2.d, m.shininess, m.diffuse, m.specular);
+                res += refrColor;
+            }
         }
     }
 
