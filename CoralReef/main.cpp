@@ -44,6 +44,7 @@ ID3DX11EffectShaderResourceVariable*g_ptxDiffuse = nullptr;
 ID3DX11EffectMatrixVariable*        MVP = nullptr;
 ID3DX11EffectMatrixVariable*        M = nullptr;
 ID3DX11EffectMatrixVariable*		P = nullptr;
+ID3DX11EffectMatrixVariable*		V = nullptr;
 ID3DX11EffectScalarVariable*        g_pfTime = nullptr;
 ID3DX11EffectScalarVariable*		WinWidth = nullptr;
 ID3DX11EffectScalarVariable*		WinHeight = nullptr;
@@ -280,14 +281,7 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
 
-	XMFLOAT3 vCenter(0.25767413f, -28.503521f, 111.00689f);
-	FLOAT fObjectRadius = 378.15607f;
-
-	g_mCenterMesh = XMMatrixTranslation(-vCenter.x, -vCenter.y, -vCenter.z);
-	XMMATRIX m = XMMatrixRotationY(XM_PI);
-	g_mCenterMesh *= m;
-	m = XMMatrixRotationX(XM_PI / 2.0f);
-	g_mCenterMesh *= m;
+	g_mCenterMesh = XMMatrixTranslation(0.0, 0.0, 2.0);
 
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
@@ -341,6 +335,7 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	MVP = g_pEffect->GetVariableByName("MVP")->AsMatrix();
 	M = g_pEffect->GetVariableByName("M")->AsMatrix();
 	P = g_pEffect->GetVariableByName("P")->AsMatrix();
+	V = g_pEffect->GetVariableByName("V")->AsMatrix();
 	g_pfTime = g_pEffect->GetVariableByName("g_fTime")->AsScalar();
 	g_pMaterialAmbientColor = g_pEffect->GetVariableByName("g_MaterialAmbientColor")->AsVector();
 	g_pMaterialDiffuseColor = g_pEffect->GetVariableByName("g_MaterialDiffuseColor")->AsVector();
@@ -361,7 +356,7 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 		PassDesc.IAInputSignatureSize, &g_pVertexLayout));
 
 	// Load the mesh
-	V_RETURN(g_Mesh11.Create(pd3dDevice, L"tiny\\tiny.sdkmesh"));
+	V_RETURN(g_Mesh11.Create(pd3dDevice, L"misc\\ball.sdkmesh"));
 
 	// Set effect variables as needed
 	XMFLOAT4 colorMtrlDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
@@ -370,9 +365,9 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	V_RETURN(g_pMaterialDiffuseColor->SetFloatVector(reinterpret_cast<float*>(&colorMtrlDiffuse)));
 
 	// Setup the camera's view parameters
-	static const XMVECTORF32 s_vecEye = { 0.0f, 0.0f, -15.0f, 0.0f };
+	static const XMVECTORF32 s_vecEye = { 0.0f, 0.0f, -1.0f, 0.0f };
 	g_Camera.SetViewParams(s_vecEye, g_XMZero);
-	g_Camera.SetRadius(fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f);
+	//g_Camera.SetRadius(fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f);
 
 	return S_OK;
 }
@@ -439,12 +434,15 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	XMFLOAT4X4 m;
 	XMStoreFloat4x4(&m, mWorldViewProjection);
 	V(MVP->SetMatrix(reinterpret_cast<float*>(&m)));
-
+	
 	XMStoreFloat4x4(&m, mWorld);
 	V(M->SetMatrix(reinterpret_cast<float*>(&m)));
 
 	XMStoreFloat4x4(&m, mProj);
 	V(P->SetMatrix(reinterpret_cast<float*>(&m)));
+
+	XMStoreFloat4x4(&m, mView);
+	V(V->SetMatrix(reinterpret_cast<float*>(&m)));
 
 	V(g_pfTime->SetFloat(static_cast<float>(fTime)));
 

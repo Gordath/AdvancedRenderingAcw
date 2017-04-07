@@ -12,6 +12,7 @@ float g_fTime; // App's time in seconds
 float4x4 M; // World matrix for object
 float4x4 MVP; // World * View * Projection matrix
 float4x4 P;
+float4x4 V;
 
 float4 LightColor = float4(1, 1, 1, 1);
 float3 LightPos = float3(0, 1, -10);

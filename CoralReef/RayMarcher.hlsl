@@ -3,7 +3,7 @@
 
 #include "MainScene.hlsl"
 
-#define INTERVALS 256
+#define INTERVALS 512
 #define MIN_DIST 0
 #define MAX_DIST 20
 #define EPSILON 0.005
@@ -100,9 +100,6 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
         {
             res = res * mat.roughness + float4(0.0, 0.05, 0.2, 1.0) * fresnelTerm * reflectivity;
         }
-
-        /*float fogAmount = 1.0 - exp(-t * 0.2);
-        res.rgb = lerp(res.rgb, float3(0.0, 0.05, 0.2), fogAmount);*/
     }
 
     //refraction
@@ -133,9 +130,7 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, float lightIntensity,
                 Material m = GetMaterial(p, mId);
 
                 float4 refrColor = LightColor * lightIntensity * Phong(n, normalize(LightPos - p), refrRay2.d, m.shininess, m.diffuse, m.specular);
-                res += refrColor;
-                /*float fogAmount = 1.0 - exp(-t * 0.2);
-                res.rgb = lerp(res.rgb, float3(0.0, 0.05, 0.2), fogAmount);*/
+                res += refrColor + float4(0.0, 0.05, 0.2, 0.0); //maybe use an exponent for the blue tint colour.
             }
         }
     }
@@ -164,6 +159,8 @@ float4 GetRayColour(Ray ray, out float depth)
 
 		float fogAmount = 1.0 - exp(-t * 0.2);
 		result.rgb = lerp(result.rgb, float3(0.0, 0.05, 0.2), fogAmount);
+
+        depth = -(ray.o - t * ray.d).z / (far * 0.2);
     }
 
     return result;

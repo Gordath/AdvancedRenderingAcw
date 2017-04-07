@@ -222,6 +222,12 @@ float Coral(float3 p)
     return Mandelbulb(p, val, 8, 0.0, 0.0, 0.0, (float3) 0.0);
 }
 
+float Coral2(float3 p)
+{
+    float val = lerp(5, 8, cos(g_fTime) * 0.5 + 0.5);
+    return Mandelbulb(p, val, 8, 0.5, 0.0, 0.6, (float3) 0.0);
+}
+
 float Seaweed(float3 p)
 {
     return SignedCappedCylinder(p + fbm3(p, 4, 2.3) * 0.1, float2(0.035, 2.0));
@@ -275,6 +281,7 @@ float SceneMap(float3 p, out int materialId)
     speed = 4.0;
     tmpP = float3(p.x + sin(g_fTime * speed + p.y * frequency) * amplitude, p.y - (g_fTime * 0.2 - 2.0) % 6 + 3.0, p.z + 3.0);
     res = OperationUnion(res, materialId, SignedSphere(tmpP, 0.3), MATERIAL_BUBBLE, materialId);
+
 
     return res;
 }
