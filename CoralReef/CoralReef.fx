@@ -24,8 +24,8 @@ VS_QUAD RenderSceneVSRayMarch(float4 vPos : POSITION,
 PS_OUTPUTWithDepth PSSeaFloorSeaSurfaceFog(VS_QUAD In)
 { 
 	Camera cam;
-	//cam.position = float3(cos(g_fTime * 0.2) * 6.0, 0, sin(g_fTime * 0.2) * 6.0);
-    cam.position = float3(0.0, 0.0, -6.0);
+	cam.position = float3(cos(g_fTime * 0.2) * 6.0, 0, sin(g_fTime * 0.2) * 6.0);
+    //cam.position = float3(0.0, 0.0, -6.0);
 	cam.target = float3(0, 0, 0.0);
 	cam.fov = 45.0;
 
@@ -113,7 +113,7 @@ technique11 CoralReef
 		SetDepthStencilState(EnableDepth, 0);
 	}
 
-    pass P1
+    /* P1
     {
         SetVertexShader(CompileShader(vs_5_0, RenderSceneVSExplicit(float3(0.5 + 2.0, -3.0, 5.0), float3(1.0, 1.0, 1.0))));
         SetGeometryShader(NULL);
@@ -161,7 +161,7 @@ technique11 CoralReef
 
         SetDepthStencilState(EnableDepth, 0);
         SetBlendState(NoBlend, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
-    }
+    }*/
 
 	pass P6
 	{

@@ -8,3 +8,4 @@ ipch/
 *.res
 *.unsuccessfulbuild
 Release/
+.vs/
