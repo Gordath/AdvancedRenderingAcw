@@ -39,10 +39,12 @@ CDXUTSDKMesh                        g_Mesh11;
 ID3D11InputLayout*                  g_pVertexLayout = nullptr;
 
 ID3DX11Effect*                      g_pEffect = nullptr;
-ID3DX11EffectTechnique*             g_pTechRenderSceneWithTexture1Light = nullptr;
+ID3DX11EffectTechnique*             coralReefTechnique = nullptr;
 ID3DX11EffectShaderResourceVariable*g_ptxDiffuse = nullptr;
-ID3DX11EffectMatrixVariable*        g_pmWorldViewProjection = nullptr;
-ID3DX11EffectMatrixVariable*        g_pmWorld = nullptr;
+ID3DX11EffectMatrixVariable*        MVP = nullptr;
+ID3DX11EffectMatrixVariable*        M = nullptr;
+ID3DX11EffectMatrixVariable*		P = nullptr;
+ID3DX11EffectMatrixVariable*		V = nullptr;
 ID3DX11EffectScalarVariable*        g_pfTime = nullptr;
 ID3DX11EffectScalarVariable*		WinWidth = nullptr;
 ID3DX11EffectScalarVariable*		WinHeight = nullptr;
@@ -111,7 +113,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	DXUTInit(true, true, nullptr); // Parse the command line, show msgboxes on error, no extra command line params
 	DXUTSetCursorSettings(true, true); // Show the cursor and clip it when in full screen
 	DXUTCreateWindow(L"CoralReef");
-	DXUTCreateDevice(D3D_FEATURE_LEVEL_11_0, true, 800, 600);
+	DXUTCreateDevice(D3D_FEATURE_LEVEL_10_0, true, 800, 600);
 	DXUTMainLoop(); // Enter into the DXUT render loop
 
 	return DXUTGetExitCode();
@@ -279,14 +281,7 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
 
-	XMFLOAT3 vCenter(0.25767413f, -28.503521f, 111.00689f);
-	FLOAT fObjectRadius = 378.15607f;
-
-	g_mCenterMesh = XMMatrixTranslation(-vCenter.x, -vCenter.y, -vCenter.z);
-	XMMATRIX m = XMMatrixRotationY(XM_PI);
-	g_mCenterMesh *= m;
-	m = XMMatrixRotationX(XM_PI / 2.0f);
-	g_mCenterMesh *= m;
+	g_mCenterMesh = XMMatrixTranslation(0.0, 0.0, 2.0);
 
 	g_pTxtHelper = new CDXUTTextHelper(pd3dDevice, pd3dImmediateContext, &g_DialogResourceManager, 15);
 
@@ -333,12 +328,14 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 #endif
 
 	// Obtain technique objects
-	g_pTechRenderSceneWithTexture1Light = g_pEffect->GetTechniqueByName("RenderSceneWithTexture1Light");
+	coralReefTechnique = g_pEffect->GetTechniqueByName("CoralReef");
 
 	// Obtain variables
 	g_ptxDiffuse = g_pEffect->GetVariableByName("g_MeshTexture")->AsShaderResource();
-	g_pmWorldViewProjection = g_pEffect->GetVariableByName("g_mWorldViewProjection")->AsMatrix();
-	g_pmWorld = g_pEffect->GetVariableByName("g_mWorld")->AsMatrix();
+	MVP = g_pEffect->GetVariableByName("MVP")->AsMatrix();
+	M = g_pEffect->GetVariableByName("M")->AsMatrix();
+	P = g_pEffect->GetVariableByName("P")->AsMatrix();
+	V = g_pEffect->GetVariableByName("V")->AsMatrix();
 	g_pfTime = g_pEffect->GetVariableByName("g_fTime")->AsScalar();
 	g_pMaterialAmbientColor = g_pEffect->GetVariableByName("g_MaterialAmbientColor")->AsVector();
 	g_pMaterialDiffuseColor = g_pEffect->GetVariableByName("g_MaterialDiffuseColor")->AsVector();
@@ -354,23 +351,23 @@ HRESULT CALLBACK OnD3D11CreateDevice(ID3D11Device* pd3dDevice, const DXGI_SURFAC
 	};
 
 	D3DX11_PASS_DESC PassDesc;
-	V_RETURN(g_pTechRenderSceneWithTexture1Light->GetPassByIndex(0)->GetDesc(&PassDesc));
+	V_RETURN(coralReefTechnique->GetPassByIndex(0)->GetDesc(&PassDesc));
 	V_RETURN(pd3dDevice->CreateInputLayout(layout, 3, PassDesc.pIAInputSignature,
 		PassDesc.IAInputSignatureSize, &g_pVertexLayout));
 
 	// Load the mesh
-	V_RETURN(g_Mesh11.Create(pd3dDevice, L"tiny\\tiny.sdkmesh"));
+	V_RETURN(g_Mesh11.Create(pd3dDevice, L"misc\\ball.sdkmesh"));
 
 	// Set effect variables as needed
 	XMFLOAT4 colorMtrlDiffuse(1.0f, 1.0f, 1.0f, 1.0f);
 	XMFLOAT4 colorMtrlAmbient(0.35f, 0.35f, 0.35f, 0);
-	V_RETURN(g_pMaterialAmbientColor->SetFloatVector((float*)&colorMtrlAmbient));
-	V_RETURN(g_pMaterialDiffuseColor->SetFloatVector((float*)&colorMtrlDiffuse));
+	V_RETURN(g_pMaterialAmbientColor->SetFloatVector(reinterpret_cast<float*>(&colorMtrlAmbient)));
+	V_RETURN(g_pMaterialDiffuseColor->SetFloatVector(reinterpret_cast<float*>(&colorMtrlDiffuse)));
 
 	// Setup the camera's view parameters
-	static const XMVECTORF32 s_vecEye = { 0.0f, 0.0f, -15.0f, 0.0f };
+	static const XMVECTORF32 s_vecEye = { 0.0f, 0.0f, -1.0f, 0.0f };
 	g_Camera.SetViewParams(s_vecEye, g_XMZero);
-	g_Camera.SetRadius(fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f);
+	//g_Camera.SetRadius(fObjectRadius * 3.0f, fObjectRadius * 0.5f, fObjectRadius * 10.0f);
 
 	return S_OK;
 }
@@ -388,8 +385,8 @@ HRESULT CALLBACK OnD3D11ResizedSwapChain(ID3D11Device* pd3dDevice, IDXGISwapChai
 	V_RETURN(g_D3DSettingsDlg.OnD3D11ResizedSwapChain(pd3dDevice, pBackBufferSurfaceDesc));
 
 	// Setup the camera's projection parameters
-	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
-	g_Camera.SetProjParams(XM_PI / 4, fAspectRatio, 2.0f, 4000.0f);
+	float fAspectRatio = pBackBufferSurfaceDesc->Width / static_cast<FLOAT>(pBackBufferSurfaceDesc->Height);
+	g_Camera.SetProjParams(45.0, fAspectRatio, 0.0f, 20.0f);
 	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 	g_Camera.SetButtonMasks(MOUSE_LEFT_BUTTON, MOUSE_WHEEL, MOUSE_MIDDLE_BUTTON);
 
@@ -436,15 +433,21 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 
 	XMFLOAT4X4 m;
 	XMStoreFloat4x4(&m, mWorldViewProjection);
-	V(g_pmWorldViewProjection->SetMatrix((float*)&m));
-
+	V(MVP->SetMatrix(reinterpret_cast<float*>(&m)));
+	
 	XMStoreFloat4x4(&m, mWorld);
-	V(g_pmWorld->SetMatrix((float*)&m));
+	V(M->SetMatrix(reinterpret_cast<float*>(&m)));
 
-	V(g_pfTime->SetFloat((float)fTime));
+	XMStoreFloat4x4(&m, mProj);
+	V(P->SetMatrix(reinterpret_cast<float*>(&m)));
+
+	XMStoreFloat4x4(&m, mView);
+	V(V->SetMatrix(reinterpret_cast<float*>(&m)));
+
+	V(g_pfTime->SetFloat(static_cast<float>(fTime)));
 
 	// Render the scene with this technique as defined in the .fx file
-	ID3DX11EffectTechnique* pRenderTechnique = g_pTechRenderSceneWithTexture1Light;
+	ID3DX11EffectTechnique* pRenderTechnique = coralReefTechnique;
 
 	//Get the mesh
 	//IA setup
@@ -453,7 +456,7 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 	UINT Offsets[1];
 	ID3D11Buffer* pVB[1];
 	pVB[0] = g_Mesh11.GetVB11(0, 0);
-	Strides[0] = (UINT)g_Mesh11.GetVertexStride(0, 0);
+	Strides[0] = static_cast<UINT>(g_Mesh11.GetVertexStride(0, 0));
 	Offsets[0] = 0;
 	pd3dImmediateContext->IASetVertexBuffers(0, 1, pVB, Strides, Offsets);
 	pd3dImmediateContext->IASetIndexBuffer(g_Mesh11.GetIB11(0), g_Mesh11.GetIBFormat11(0), 0);
@@ -469,11 +472,14 @@ void CALLBACK OnD3D11FrameRender(ID3D11Device* pd3dDevice, ID3D11DeviceContext* 
 			// Get the subset
 			auto pSubset = g_Mesh11.GetSubset(0, subset);
 
-			auto  PrimType = CDXUTSDKMesh::GetPrimitiveType11((SDKMESH_PRIMITIVE_TYPE)pSubset->PrimitiveType);
+			auto  PrimType = CDXUTSDKMesh::GetPrimitiveType11(static_cast<SDKMESH_PRIMITIVE_TYPE>(pSubset->PrimitiveType));
 			pd3dImmediateContext->IASetPrimitiveTopology(PrimType);
 
+			auto pDiffuseRV = g_Mesh11.GetMaterial(pSubset->MaterialID)->pDiffuseRV11;
+			g_ptxDiffuse->SetResource(pDiffuseRV);
+
 			pRenderTechnique->GetPassByIndex(p)->Apply(0, pd3dImmediateContext);
-			pd3dImmediateContext->DrawIndexed((UINT)pSubset->IndexCount, 0, (UINT)pSubset->VertexStart);
+			pd3dImmediateContext->DrawIndexed(static_cast<UINT>(pSubset->IndexCount), 0, static_cast<UINT>(pSubset->VertexStart));
 		}
 	}
 

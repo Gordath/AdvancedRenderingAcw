@@ -9,52 +9,94 @@
       <UniqueIdentifier>{2c3d4c8c-5d1a-459a-a05a-a4e4b608a44e}</UniqueIdentifier>
       <Extensions>fx;fxh;hlsl</Extensions>
     </Filter>
+    <Filter Include="Shaders\Noise">
+      <UniqueIdentifier>{c5225ae3-eb8c-41e1-bcbb-007b57f0bed2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Noise\Simplex">
+      <UniqueIdentifier>{63b5bed7-7ae6-40d4-920c-97d2699ae25b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Noise\Cellular">
+      <UniqueIdentifier>{bedfde16-8cdd-4f97-8a05-27fa48dcd114}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\RayMarching">
+      <UniqueIdentifier>{0c81ef66-2a2a-45ac-af0c-e6517cdf546a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\RayMarching\DomainOperations">
+      <UniqueIdentifier>{2dbc7e6c-ba96-445b-9e7a-d814c5231069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\RayMarching\DistanceOperations">
+      <UniqueIdentifier>{97609f62-25af-4d0a-a584-ef48e0bfca3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\RayMarching\Primitives">
+      <UniqueIdentifier>{0f660ac8-226b-4557-a930-1bb59cadb668}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DXUT11\Optional\directx.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="CoralReef.fx">
+    <None Include="MainScene.hlsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="PrimitiveDistanceFunctions.hlsl">
-      <Filter>Shaders</Filter>
+    <None Include="SimplexNoise.hlsl">
+      <Filter>Shaders\Noise\Simplex</Filter>
     </None>
-    <None Include="DistanceOperations.hlsl">
-      <Filter>Shaders</Filter>
+    <None Include="SimplexNoise2D.hlsl">
+      <Filter>Shaders\Noise\Simplex</Filter>
+    </None>
+    <None Include="SimplexNoise3D.hlsl">
+      <Filter>Shaders\Noise\Simplex</Filter>
+    </None>
+    <None Include="SimplexNoise4D.hlsl">
+      <Filter>Shaders\Noise\Simplex</Filter>
+    </None>
+    <None Include="NoiseHelperFunctions.hlsl">
+      <Filter>Shaders\Noise</Filter>
+    </None>
+    <None Include="CellularNoise2D.hlsl">
+      <Filter>Shaders\Noise\Cellular</Filter>
+    </None>
+    <None Include="CellularNoise2x2.hlsl">
+      <Filter>Shaders\Noise\Cellular</Filter>
+    </None>
+    <None Include="CellularNoise2x2x2.hlsl">
+      <Filter>Shaders\Noise\Cellular</Filter>
     </None>
     <None Include="DomainOperations.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\RayMarching\DomainOperations</Filter>
+    </None>
+    <None Include="DomainDeformations.hlsl">
+      <Filter>Shaders\RayMarching\DomainOperations</Filter>
+    </None>
+    <None Include="DistanceOperations.hlsl">
+      <Filter>Shaders\RayMarching\DistanceOperations</Filter>
+    </None>
+    <None Include="DistanceDeformations.hlsl">
+      <Filter>Shaders\RayMarching\DistanceOperations</Filter>
+    </None>
+    <None Include="PrimitiveDistanceFunctions.hlsl">
+      <Filter>Shaders\RayMarching\Primitives</Filter>
+    </None>
+    <None Include="CellularNoise3D.hlsl">
+      <Filter>Shaders\Noise\Cellular</Filter>
+    </None>
+    <None Include="CellularNoise.hlsl">
+      <Filter>Shaders\Noise\Cellular</Filter>
+    </None>
+    <None Include="Noise.hlsl">
+      <Filter>Shaders\Noise</Filter>
     </None>
     <None Include="RayMarcher.hlsl">
+      <Filter>Shaders\RayMarching</Filter>
+    </None>
+    <None Include="CoralReef.fx">
       <Filter>Shaders</Filter>
     </None>
     <None Include="GlobalDeclarations.hlsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="MainScene.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="DomainDeformations.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="DistanceDeformations.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SimplexNoise.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SimplexNoiseHelper.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SimplexNoise2D.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SimplexNoise3D.hlsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="SimplexNoise4D.hlsl">
-      <Filter>Shaders</Filter>
+    <None Include="Materials.hlsl">
+      <Filter>Shaders\RayMarching</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

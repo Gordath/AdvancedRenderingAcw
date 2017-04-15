@@ -7,3 +7,5 @@ ipch/
 *.lastbuildstate
 *.res
 *.unsuccessfulbuild
+Release/
+.vs/

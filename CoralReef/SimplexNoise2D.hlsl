@@ -1,7 +1,7 @@
 #ifndef SIMPLEX_NOISE_2D_HLSL_
 #define SIMPLEX_NOISE_2D_HLSL_
 
-#include "SimplexNoiseHelper.hlsl"
+#include "NoiseHelperFunctions.hlsl"
 
 //
 // Description : Array and textureless GLSL 2D simplex noise function.
